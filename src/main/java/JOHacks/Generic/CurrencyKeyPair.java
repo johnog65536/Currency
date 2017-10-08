@@ -15,6 +15,10 @@ public class CurrencyKeyPair {
 	private String label;
 	private double balance;
 	
+	
+	public final String HASH_ALGORITHM="SHA1WithRSA";
+	public final String BYTES_ENCODING="UTF8";
+	
 	public CurrencyKeyPair(String ipLabel) {
 		balance = 0;
 		label=ipLabel;
@@ -31,9 +35,6 @@ public class CurrencyKeyPair {
         keypair  = keyGen.genKeyPair();
 
 	}
-	
-	public final String HASH_ALGORITHM="SHA1WithRSA";
-	public final String BYTES_ENCODING="UTF8";
 	
 	private byte[] getBytes(String stringToCovert) throws UnsupportedEncodingException {
 		return stringToCovert.getBytes(BYTES_ENCODING);
