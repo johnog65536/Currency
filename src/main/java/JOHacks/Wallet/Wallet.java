@@ -2,21 +2,21 @@ package JOHacks.Wallet;
 
 import java.util.ArrayList;
 
-import JOHacks.Generic.KeyPair;
+import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Generic.Transaction;
 
 public class Wallet {
 
-	private ArrayList<KeyPair> keyPairs = null;
+	private ArrayList<CurrencyKeyPair> keyPairs = null;
 
 	
 	public Wallet() {
-		keyPairs=new ArrayList<KeyPair>();
+		keyPairs=new ArrayList<CurrencyKeyPair>();
 	}
 	
 	
-	public KeyPair GenerateKeyPair() {
-		KeyPair pair = new KeyPair();
+	public CurrencyKeyPair GenerateKeyPair(String name) {
+		CurrencyKeyPair pair = new CurrencyKeyPair(name);
 		return pair;
 	}
 	

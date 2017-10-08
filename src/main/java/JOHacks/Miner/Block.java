@@ -3,7 +3,6 @@ package JOHacks.Miner;
 import java.security.Timestamp;
 import java.util.ArrayList;
 
-import JOHacks.Generic.Key;
 import JOHacks.Generic.Transaction;
 
 public class Block {
@@ -12,7 +11,7 @@ public class Block {
 	private String hash;
 	private ArrayList<Transaction> transactions;
 	private ArrayList<Data> data;
-	private Key minedBy;
+	//private Key minedBy;
 	private Timestamp timestamp;
 	
 }

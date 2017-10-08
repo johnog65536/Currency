@@ -6,16 +6,15 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Formatter;
 
-import JOHacks.Generic.Key;
 import JOHacks.Generic.Transaction;
 
 public class Miner {
 	private BlockChain blockChain;
 	private ArrayList<Miner> miningNetwork;
 	private String address;
-	private Key pubKey;
+	//private Key pubKey;
 	
-	public double getBalance(Key pubKey) {return 0;}
+	//public double getBalance(Key pubKey) {return 0;}
 
 	public void receiveTransactionFromWallet(Transaction transaction) {}
 	public void receiveTransactionFromNetwork(Transaction transaction) {}

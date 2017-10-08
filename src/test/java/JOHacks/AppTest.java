@@ -1,6 +1,6 @@
 package JOHacks;
 
-import JOHacks.Generic.KeyPair;
+import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Miner.Miner;
 import JOHacks.Wallet.Wallet;
 import junit.framework.Test;
@@ -40,7 +40,8 @@ public class AppTest
     {
         Wallet wallet = new Wallet();
 
-    	KeyPair keypair = wallet.GenerateKeyPair();    	
+    	CurrencyKeyPair keypair = wallet.GenerateKeyPair("My First KeyPair");    
+    	System.out.println(keypair);
     }
 
     public void testMinerSha1Hash() {
