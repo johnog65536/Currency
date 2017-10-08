@@ -45,7 +45,12 @@ public class AppTest
 
     public void testMinerSha1Hash() {
     	Miner miner = new Miner();
-    	String hash= miner.calcHash("hello world");
-    	assertEquals("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",hash);
+    	String helloWorld="hello world";
+    	String helloWorldHash= miner.calcHash(helloWorld);
+    	assertEquals("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",helloWorldHash);
+    	
+    	String todaysTheDay="todays\nthe\nday";
+    	String todaysTheDayHash= miner.calcHash(todaysTheDay);
+    	assertEquals("13d88910aa105741c1cf716c5c28cdaa9bba50a0",todaysTheDayHash);
     }
 }
