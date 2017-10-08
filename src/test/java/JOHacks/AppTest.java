@@ -11,6 +11,7 @@ import JOHacks.Wallet.Wallet;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import sun.misc.BASE64Encoder;
 
 /**
  * Unit test for simple App.
@@ -38,7 +39,15 @@ public class AppTest
 
 
     
-    public void testMinerSha1doStuff() {
+    public void testMinerSha1doStuff() throws UnsupportedEncodingException {
 
+    	
     }
+    
+    private void out(String label, String message) {
+    	System.out.println("\""+label+"\""+message+"\"");
+    }
+    
+    
+
 }

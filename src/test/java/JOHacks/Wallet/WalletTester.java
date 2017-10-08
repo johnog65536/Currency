@@ -50,18 +50,23 @@ public class WalletTester     extends TestCase
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypair = wallet.GenerateKeyPair("My First KeyPair");    
     	
-    	final String THING_TO_SIGN= "Thing being signed";
-    	final String RANDOM_THING = "Some Random String";
+    	final String STRING_TO_SIGN= "Thing being signed";
+    	final String RANDOM_STRING = "Some Random String";
     	
-    	byte[] messageSignature = keypair.signMessage(THING_TO_SIGN);
-    	// converting the signature to strings totally messes it up!!
-    	// todo need to fix that
+    	final String messageSignature = keypair.signMessage(STRING_TO_SIGN);
     	
-    	boolean legit = keypair.verifySignature(THING_TO_SIGN, messageSignature);
+    	boolean legit = keypair.verifySignature(STRING_TO_SIGN, messageSignature);
     	assertTrue("Good Signature Passed",legit);  	
     	
-    	boolean notlegit = keypair.verifySignature(RANDOM_THING, messageSignature);
+    	boolean notlegit = keypair.verifySignature(RANDOM_STRING, messageSignature);
     	assertFalse("Bad Signature Failed",notlegit);
     	
     }
+    
+    
+    
+	public final String BYTES_ENCODING="UTF-8";
+	private byte[] getBytes(String stringToCovert) throws UnsupportedEncodingException {
+		return stringToCovert.getBytes(BYTES_ENCODING);
+	}
 }

@@ -7,6 +7,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.Base64;
 
 import sun.misc.BASE64Encoder;
 
@@ -17,7 +18,7 @@ public class CurrencyKeyPair {
 	
 	
 	public final String HASH_ALGORITHM="SHA1WithRSA";
-	public final String BYTES_ENCODING="UTF8";
+	public final String BYTES_ENCODING="UTF-8";
 	
 	public CurrencyKeyPair(String ipLabel) {
 		balance = 0;
@@ -40,27 +41,31 @@ public class CurrencyKeyPair {
 		return stringToCovert.getBytes(BYTES_ENCODING);
 	}
 	
-	public byte[]  signMessage(String thingToSign) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
+	public String signMessage(String thingToSign) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
 		byte[] data =getBytes(thingToSign);
-		
+			
 		Signature sig = Signature.getInstance(HASH_ALGORITHM);
         sig.initSign(keypair.getPrivate());
         
         sig.update(data);
         byte[] signatureBytes = sig.sign();        
-		
-        //return new BASE64Encoder().encode(signatureBytes);
-        return signatureBytes;
+       
+		// Signature returns a UTF-8 Byte Array, need to get that into Base64 for later manipulation
+        String signatureAsUTF8 = Base64.getEncoder().encodeToString(signatureBytes);        
+        
+        return signatureAsUTF8;
 	}
 	
-	public boolean verifySignature(String messageToVerify, byte[] messageSignature) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, SignatureException {		
+	public boolean verifySignature(String messageToVerify, String messageSignature) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, SignatureException {		
 		Signature sig = Signature.getInstance(HASH_ALGORITHM);
 		sig.initVerify(keypair.getPublic());
-	
-		byte[] messageToVerifyBytes=getBytes(messageToVerify);
-		//byte[] signatureBytes=getBytes(messageSignature);
-		byte[] signatureBytes=messageSignature;
 		
+		//messageSignature arrives as a base 64 encoded string, need to get it into UTF-8 byte array
+        byte[] srcBytes=getBytes(messageSignature);
+        byte[] signatureBytes = Base64.getDecoder().decode(srcBytes);
+		
+		byte[] messageToVerifyBytes=getBytes(messageToVerify);
+			
         sig.update(messageToVerifyBytes);
                 
         return sig.verify(signatureBytes);
