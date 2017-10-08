@@ -43,7 +43,7 @@ public class AppTest
     	KeyPair keypair = wallet.GenerateKeyPair();    	
     }
 
-    public void testMiner() {
+    public void testMinerSha1Hash() {
     	Miner miner = new Miner();
     	String hash= miner.calcHash("hello world");
     	assertEquals("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",hash);
