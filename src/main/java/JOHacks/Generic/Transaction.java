@@ -9,4 +9,9 @@ public class Transaction {
 	private ArrayList<TransactionElement> inputs;
 	private ArrayList<TransactionElement> outputs;
 	private Timestamp timestamp;
+	
+	public Transaction (ArrayList<TransactionElement> ipInputs, ArrayList<TransactionElement> ipOutputs) {
+		inputs=ipInputs;
+		outputs=ipOutputs;
+	}
 }

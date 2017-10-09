@@ -17,6 +17,7 @@ public class Wallet {
 	
 	public CurrencyKeyPair GenerateKeyPair(String name) {
 		CurrencyKeyPair pair = new CurrencyKeyPair(name);
+		keyPairs.add(pair);
 		return pair;
 	}
 	
