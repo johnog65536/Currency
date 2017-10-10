@@ -4,10 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Base64;
+import java.util.Formatter;
 
 import sun.misc.BASE64Encoder;
 
@@ -70,6 +72,12 @@ public class CurrencyKeyPair {
                 
         return sig.verify(signatureBytes);
 	}
+	
+	public String getPubKeyAsString() {
+		return CryptoUtils.calcHash(keypair.getPublic().toString());
+	}
+	
+
 	
 	public String toString() {
         //String priKey=keypair.getPrivate().toString();

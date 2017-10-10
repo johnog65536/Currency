@@ -1,6 +1,7 @@
 package JOHacks.Miner;
 
 import JOHacks.AppTest;
+import JOHacks.Generic.CryptoUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -30,11 +31,11 @@ public class TestMiner     extends TestCase
     public void testMinerSha1Hash() {
     	Miner miner = new Miner();
     	String helloWorld="hello world";
-    	String helloWorldHash= miner.calcHash(helloWorld);
+    	String helloWorldHash= CryptoUtils.calcHash(helloWorld);
     	assertEquals("2aae6c35c94fcfb415dbe95f408b9ce91ee846ed",helloWorldHash);
     	
     	String todaysTheDay="todays\nthe\nday";
-    	String todaysTheDayHash= miner.calcHash(todaysTheDay);
+    	String todaysTheDayHash= CryptoUtils.calcHash(todaysTheDay);
     	assertEquals("13d88910aa105741c1cf716c5c28cdaa9bba50a0",todaysTheDayHash);
     }
 }

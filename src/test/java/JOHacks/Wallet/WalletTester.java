@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import JOHacks.AppTest;
 import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Generic.Transaction;
-import JOHacks.Generic.TransactionElement;
+import JOHacks.Generic.TransactionInput;
+import JOHacks.Generic.TransactionOutput;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -69,28 +70,58 @@ public class WalletTester     extends TestCase
     {
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
-    	CurrencyKeyPair keypairToRight = wallet.GenerateKeyPair("Paying to");
-    	CurrencyKeyPair keypairToWrong = wallet.GenerateKeyPair("Not Paying to");
+    	CurrencyKeyPair firstRightOutput = wallet.GenerateKeyPair("Paying to 1");
+    	CurrencyKeyPair secondRightOutput = wallet.GenerateKeyPair("Paying to 2");
+    	CurrencyKeyPair keypairToWrong1 = wallet.GenerateKeyPair("Not Paying to 1");
+    	CurrencyKeyPair keypairToWrong2 = wallet.GenerateKeyPair("Not Paying to 2");
     	
     	final String STRING_TO_SIGN= "pay <key> <value>";    	
     	final String messageSignature = keypairFrom.signMessage(STRING_TO_SIGN);
     	
-    	TransactionElement input1 = new TransactionElement(3.5);
-    	TransactionElement input2 = new TransactionElement(2.5);
-    	TransactionElement input3 = new TransactionElement(4);   	
-    	ArrayList<TransactionElement> inputs= new ArrayList<TransactionElement>();
+    	Transaction transaction1 = createRootTransaction(firstRightOutput,secondRightOutput);
+    	System.out.println(transaction1.getOutputString());
+    	
+    	Transaction transaction2 = createTransaction(keypairToWrong1,keypairToWrong2);
+    	System.out.println(transaction2.getOutputString());
+    }
+    
+
+    private Transaction createTransaction(CurrencyKeyPair outputKey1 ,CurrencyKeyPair outputKey2) {
+    	TransactionInput input1 = new TransactionInput("no Txn",-1);
+    	TransactionInput input2 = new TransactionInput("no Txn",-2);
+    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
     	inputs.add(input1);
     	inputs.add(input2);
-    	inputs.add(input3);
     	
-    	TransactionElement output1 = new TransactionElement(8);
-    	TransactionElement output2 = new TransactionElement(2);
-    	ArrayList<TransactionElement> outputs= new ArrayList<TransactionElement>();
+    	TransactionOutput output1 = new TransactionOutput(0,10,outputKey1.getPubKeyAsString());
+    	TransactionOutput output2 = new TransactionOutput(0,4,outputKey2.getPubKeyAsString());
+    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
     	outputs.add(output1);
     	outputs.add(output2);
     	
     	Transaction transaction = new Transaction(inputs,outputs);
     	
+    	return transaction;
+    }
+    
+    private Transaction createRootTransaction(CurrencyKeyPair outputKey1 ,CurrencyKeyPair outputKey2) {
+    	TransactionInput input1 = new TransactionInput("no Txn",-1);
+    	TransactionInput input2 = new TransactionInput("no Txn",-2);
+    	TransactionInput input3 = new TransactionInput("no Txn",-3);   	
+    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	inputs.add(input1);
+    	inputs.add(input2);
+    	inputs.add(input3);
+    	
+    	TransactionOutput output1 = new TransactionOutput(0,8,outputKey1.getPubKeyAsString());
+    	TransactionOutput output2 = new TransactionOutput(0,6,outputKey2.getPubKeyAsString());
+    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
+    	outputs.add(output1);
+    	outputs.add(output2);
+    	
+    	Transaction transaction = new Transaction(inputs,outputs);
+    	
+    	return transaction;
     }
     
 	public final String BYTES_ENCODING="UTF-8";
