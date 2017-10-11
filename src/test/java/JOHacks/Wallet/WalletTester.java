@@ -70,31 +70,41 @@ public class WalletTester     extends TestCase
     {
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
-    	CurrencyKeyPair firstRightOutput = wallet.GenerateKeyPair("Paying to 1");
-    	CurrencyKeyPair secondRightOutput = wallet.GenerateKeyPair("Paying to 2");
-    	CurrencyKeyPair keypairToWrong1 = wallet.GenerateKeyPair("Not Paying to 1");
-    	CurrencyKeyPair keypairToWrong2 = wallet.GenerateKeyPair("Not Paying to 2");
+    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
+    	CurrencyKeyPair outputKeyPair2 = wallet.GenerateKeyPair("Paying to 2");
     	
     	final String STRING_TO_SIGN= "pay <key> <value>";    	
     	final String messageSignature = keypairFrom.signMessage(STRING_TO_SIGN);
     	
-    	Transaction transaction1 = createRootTransaction(firstRightOutput,secondRightOutput);
+    	Transaction transaction1 = createRootTransaction(outputKeyPair1,outputKeyPair2);
+    	
+    	System.out.println("testCreateWalletCreateTransaction() vvvv");
     	System.out.println(transaction1.getOutputString());
     	
-    	Transaction transaction2 = createTransaction(keypairToWrong1,keypairToWrong2);
+    	// this txn needs its inputs to be hung off the outputs of the previous txn
+    	String inputTxnHash1=transaction1.getInput(0).getTransactionHash();
+    	String inputTxnHash2=transaction1.getInput(1).getTransactionHash();
+    	double outputValue1=4.5;
+    	double outputValue2=5.5;
+    	Transaction transaction2 = createRealTransaction ( inputTxnHash1,  inputTxnHash2,  outputKeyPair1,outputValue1,  outputKeyPair1, outputValue2);
     	System.out.println(transaction2.getOutputString());
+    	
+    	System.out.println("testCreateWalletCreateTransaction() ^^^^");
     }
     
 
-    private Transaction createTransaction(CurrencyKeyPair outputKey1 ,CurrencyKeyPair outputKey2) {
+    private Transaction createRealTransaction(String inputTxnHash1,String inputTxnHash2, 
+    										  CurrencyKeyPair outputKeyPair1, double outputValue1,
+    										  CurrencyKeyPair outputKeyPair2, double outputValue2  ) {
+    	
     	TransactionInput input1 = new TransactionInput("no Txn",-1);
     	TransactionInput input2 = new TransactionInput("no Txn",-2);
     	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
     	inputs.add(input1);
     	inputs.add(input2);
     	
-    	TransactionOutput output1 = new TransactionOutput(0,10,outputKey1.getPubKeyAsString());
-    	TransactionOutput output2 = new TransactionOutput(0,4,outputKey2.getPubKeyAsString());
+    	TransactionOutput output1 = new TransactionOutput(0,10,outputKeyPair1.getPubKeyAsString());
+    	TransactionOutput output2 = new TransactionOutput(0,4,outputKeyPair2.getPubKeyAsString());
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
     	outputs.add(output1);
     	outputs.add(output2);

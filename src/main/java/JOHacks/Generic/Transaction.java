@@ -40,7 +40,9 @@ public class Transaction {
 		return returnVal.toString();
 	}
 	
-
 	
+	public TransactionInput getInput(int index) {
+		return inputs.get(index);
+	}
 
 }

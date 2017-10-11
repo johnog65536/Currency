@@ -12,8 +12,10 @@ public class TransactionInput {
 		this.previousTransactionIndex = previousTransactionIndex;
 	}
 	
-	private String getTransactionHash() {
-		return "";
+	
+	// TODO this feels really dodgy
+	public String getTransactionHash() {
+		return CryptoUtils.calcHash(previousTransactionHash+previousTransactionIndex);
 	}
 	
 	public String getOutputString() {
