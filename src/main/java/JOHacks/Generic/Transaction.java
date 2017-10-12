@@ -45,4 +45,7 @@ public class Transaction {
 		return inputs.get(index);
 	}
 
+	public TransactionOutput getOutput(int index) {
+		return outputs.get(index);
+	}
 }

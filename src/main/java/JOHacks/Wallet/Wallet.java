@@ -1,5 +1,6 @@
 package JOHacks.Wallet;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import JOHacks.Generic.CurrencyKeyPair;
@@ -15,7 +16,7 @@ public class Wallet {
 	}
 	
 	
-	public CurrencyKeyPair GenerateKeyPair(String name) {
+	public CurrencyKeyPair GenerateKeyPair(String name) throws NoSuchAlgorithmException {
 		CurrencyKeyPair pair = new CurrencyKeyPair(name);
 		keyPairs.add(pair);
 		return pair;

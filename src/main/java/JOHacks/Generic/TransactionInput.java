@@ -15,10 +15,10 @@ public class TransactionInput {
 	
 	// TODO this feels really dodgy
 	public String getTransactionHash() {
-		return CryptoUtils.calcHash(previousTransactionHash+previousTransactionIndex);
+		return "Input: "+ CryptoUtils.calcHash(previousTransactionHash+previousTransactionIndex);
 	}
 	
 	public String getOutputString() {
-		return "   Input " + previousTransactionHash + " " + previousTransactionIndex;
+		return "   Input: prevTxNHash:" + previousTransactionHash + " prevTxnIndex:" + previousTransactionIndex;
 	}
 }

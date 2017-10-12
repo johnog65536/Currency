@@ -16,6 +16,11 @@ public class TransactionOutput {
 	}
 	
 	public String getOutputString() {
-		return "   Output " + index + " " + value + " " + pubKey;
+				
+		return "   Output: Idx:" + index + " Value:" + value + " PubKey:" + pubKey;
 	}
+	
+	public int getIndex() {return index;}
+	public String getHash() {return CryptoUtils.calcHash(getOutputString());}
+	public String getPubKey() {return pubKey;}
 }
