@@ -38,11 +38,6 @@ public class TestWallet     extends TestCase
         return new TestSuite( TestWallet.class );
     }
 
-	
-    public void testCreateWallet()
-    {
-        Wallet wallet = new Wallet();
-    }
     
     /** check a wallet can be created, and a key pair added
      * 
@@ -87,36 +82,71 @@ public class TestWallet     extends TestCase
      */
     public void testCreateTransaction() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException
     {
-        Wallet wallet = new Wallet();
-    	CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
-    	CurrencyKeyPair outputKeyPair0 = wallet.GenerateKeyPair("Paying to 0");
-    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
+        final Wallet wallet = new Wallet();
+    	final CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
+    	final CurrencyKeyPair keypairTo = wallet.GenerateKeyPair("Paying To");
     	
     	final String STRING_TO_SIGN= "pay <key> <value>";    	
     	final String messageSignature = CryptoUtils.signMessage(STRING_TO_SIGN,keypairFrom);
     	
-    	ArrayList<CurrencyKeyPair> outputKeyPairs=new ArrayList<CurrencyKeyPair>();
-    	outputKeyPairs.add(outputKeyPair0);
-    	outputKeyPairs.add(outputKeyPair1);
+    	// Create Root Transaction VVVVVV
+    	final double rootValue=10;
+    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	TransactionInput input1 = new TransactionInput("no Txn",-1);
+    	inputs.add(input1);
+
+    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
+    	CurrencyKeyPair outputKeyPair0 = wallet.GenerateKeyPair("Paying to 0");
+    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
     	
-    	
-    	Transaction transaction0 = createRootTransaction(outputKeyPairs);
-    	
+    	TransactionOutput output0 = new TransactionOutput(0,rootValue,outputKeyPair0.getPubKeyAsString());
+    	TransactionOutput output1 = new TransactionOutput(1,rootValue,outputKeyPair1.getPubKeyAsString());
+    	outputs.add(output0);
+    	outputs.add(output1);
+   
+    	final Transaction transaction0 = new Transaction(inputs,outputs);
+    	// Create Root Transaction ^^^^^^^
+    	    	
     	System.out.println("testCreateWalletCreateTransaction() vvvv");
     	System.out.println(transaction0.getOutputString());
+    	    	
+    	double paymentValue=4.5;
+    	int prevOutputIndex=0;
+    	Transaction transaction1 = createRealTransaction ( transaction0, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    	System.out.println(transaction1.getOutputString());
     	
-    	// this txn needs its inputs to be hung off the outputs of the previous txn
-    	// and needs to validate those
+    	paymentValue=1.5;
+    	prevOutputIndex=1;
+    	Transaction transaction2 = createRealTransaction ( transaction1, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    	System.out.println(transaction2.getOutputString());    	
+
+    	// Check the create transction fails if the key doing the spend doesnt match the key on the prior transactions prior output
+    	paymentValue=0.5;
+    	prevOutputIndex=0;
+    	boolean failed=false;
+    	try {
+    		Transaction transaction3 = createRealTransaction ( transaction2, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    		System.out.println(transaction3.getOutputString());
+    	} catch(InvalidKeyException e) {failed=true;}
+    	assertTrue("Last transaction should have failed with invalid keys",failed);
+
     	
-    	double outputValue0=4.5;
-    	double outputValue1=5.5;
-    	Transaction transaction2 = createRealTransaction ( transaction0, outputKeyPair0,outputValue0,  outputKeyPair1, outputValue1);
-    	System.out.println(transaction2.getOutputString());
+    	// Check the create transction fails if the outputs exceed the inputs
+    	paymentValue=20;
+    	prevOutputIndex=1;
+        failed=false;
+    	try {
+    		Transaction transaction3 = createRealTransaction ( transaction2, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    		System.out.println(transaction3.getOutputString());
+    	} catch(InvalidKeyException e) {failed=true;}
+    	assertTrue("Last transaction should have failed with too big a spend",failed);
+
+    	
     	
     	System.out.println("testCreateWalletCreateTransaction() ^^^^");
     }
     
-    /** internal method which creates a transaction, hanging it off a pervious output
+    /** internal method which creates a transaction, hanging it off a previous output
      * 
      * @param priorTransaction
      * @param outputKeyPair0
@@ -130,40 +160,40 @@ public class TestWallet     extends TestCase
      * @throws UnsupportedEncodingException
      * @throws InvalidKeySpecException
      */
-    private Transaction createRealTransaction(Transaction priorTransaction,  
-    										  CurrencyKeyPair outputKeyPair0, double outputValue0,
-    										  CurrencyKeyPair outputKeyPair1, double outputValue1  ) 
+    private Transaction createRealTransaction(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey,
+    		CurrencyKeyPair outputKeyPair, double outputValue  ) 
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException{
     	
+    	// build the inputs
     	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
-    	TransactionOutput priorOutput0 = priorTransaction.getOutput(0);
-    	TransactionOutput priorOutput1 = priorTransaction.getOutput(1);
+    	TransactionOutput priorOutput0 = priorTransaction.getOutput(prevOutputIndex);
     	TransactionInput input0 =new TransactionInput(priorOutput0.getHash(),priorOutput0.getIndex());
-    	TransactionInput input1 =new TransactionInput(priorOutput1.getHash(),priorOutput1.getIndex());
     	inputs.add(input0);
-    	inputs.add(input1);
     	
-    	//check the pubKey in the inputTransaction matches that of the person initiating the spend
-    	//todo make this a proper signature check
+    	// Validate that the pubKey listed on the previous transaction == that of the key trying to do the spend    	
+    	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),sourceKey);
     	
-    	// todo why is keypair 0 and 1 the same?!
-
-    	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),outputKeyPair0);
-    	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput1.getPubKey()),outputKeyPair1);
-    	
+    	// Check the above signing is working, by cross validating against a known crap key
     	boolean thrown=false;
     	try {
-    		CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),outputKeyPair1);
+    		Wallet w = new Wallet();
+    		CurrencyKeyPair badKeyPair = w.GenerateKeyPair("Bad Key Pair");
+    		CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),badKeyPair);
     	} catch (InvalidKeyException e) {thrown = true;}
     	assertTrue("Key validation should have failed",thrown);
     	
-    	
-    	TransactionOutput output0 = new TransactionOutput(0,7,outputKeyPair0.getPubKeyAsString());
-    	TransactionOutput output1 = new TransactionOutput(1,7,outputKeyPair1.getPubKeyAsString());
+    	// build the outputs
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	outputs.add(output0);
-    	outputs.add(output1);
+    	TransactionOutput output0 = new TransactionOutput(0,outputValue,outputKeyPair.getPubKeyAsString());
     	
+    	double origTransactionValue=priorOutput0.getValue();
+    	String origTransactionPubKey=priorOutput0.getPubKey();
+    	
+    	double changeAmount=origTransactionValue - outputValue;
+    	if (changeAmount<0) throw new InvalidKeyException("Insufficient Funds");
+    	TransactionOutput change = new TransactionOutput(1,changeAmount,origTransactionPubKey);
+    	outputs.add(output0);
+    	outputs.add(change);
     	Transaction transaction = new Transaction(inputs,outputs);
     	
     	return transaction;
@@ -173,21 +203,23 @@ public class TestWallet     extends TestCase
      * 
      * @param outputKeys ArrayList of output keys
      * @return a new Root Transaction for a blockchain
+     * @throws NoSuchAlgorithmException 
      */
-    private Transaction createRootTransaction(ArrayList<CurrencyKeyPair> outputKeys) {
- 	
+    private Transaction createRootTransaction(Wallet wallet, double value) throws NoSuchAlgorithmException {
+     	
     	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
     	TransactionInput input1 = new TransactionInput("no Txn",-1);
     	inputs.add(input1);
 
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	int index=0;
+    	CurrencyKeyPair outputKeyPair0 = wallet.GenerateKeyPair("Paying to 0");
+    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
     	
-    	for (CurrencyKeyPair outputKey: outputKeys) {
-        	TransactionOutput output = new TransactionOutput(index++,5.5,outputKey.getPubKeyAsString());
-        	outputs.add(output);
-    	}
-    	
+    	TransactionOutput output0 = new TransactionOutput(0,value,outputKeyPair0.getPubKeyAsString());
+    	TransactionOutput output1 = new TransactionOutput(1,value,outputKeyPair1.getPubKeyAsString());
+    	outputs.add(output0);
+    	outputs.add(output1);
+   
     	return new Transaction(inputs,outputs);
     	
     }
