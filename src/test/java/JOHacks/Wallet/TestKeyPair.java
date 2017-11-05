@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
-import JOHacks.AppTest;
+import JOHacks.TestApp;
 import JOHacks.Generic.CryptoUtils;
 import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Generic.TransactionOutput;
@@ -31,14 +31,17 @@ public class TestKeyPair extends TestCase {
 		return new TestSuite(TestKeyPair.class);
 	}
 
-    public void testMinerSha1Hash() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
+	
+	/**
+	 * check keypair stuff can be instantiated
+	 * 
+	 * @throws UnsupportedEncodingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
+    public void testWalletCreation() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
     	
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypair = wallet.GenerateKeyPair("Test KeyPair");
-    	TransactionOutput outputTxn = new TransactionOutput(0,7,keypair.getPubKeyAsString());
-    	
-    	PublicKey pubKey = CryptoUtils.generatePubKey(outputTxn.getPubKey());
-    	//todo Fix!
-    	//CryptoUtils.validateKeyPair(pubKey,outputTxn.get);
     }
 }

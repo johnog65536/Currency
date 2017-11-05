@@ -8,7 +8,7 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 
-import JOHacks.AppTest;
+import JOHacks.TestApp;
 import JOHacks.Generic.CryptoUtils;
 import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Generic.Transaction;
@@ -18,14 +18,14 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class WalletTester     extends TestCase
+public class TestWallet     extends TestCase
 {
     /**
      * Create the test case
      *
      * @param testName name of the test case
      */
-    public WalletTester( String testName )
+    public TestWallet( String testName )
     {
         super( testName );
     }
@@ -35,7 +35,7 @@ public class WalletTester     extends TestCase
      */
     public static Test suite()
     {
-        return new TestSuite( WalletTester.class );
+        return new TestSuite( TestWallet.class );
     }
 
 	
@@ -44,22 +44,30 @@ public class WalletTester     extends TestCase
         Wallet wallet = new Wallet();
     }
     
+    /** check a wallet can be created, and a key pair added
+     * 
+     * @throws NoSuchAlgorithmException
+     */
     public void testCreateWalletWithKeys() throws NoSuchAlgorithmException
     {
         Wallet wallet = new Wallet();
-
     	CurrencyKeyPair keypair = wallet.GenerateKeyPair("My First KeyPair");    
-    	
     }
 
+    /** check a message can be signed, and that the singature can be verified (positive) and that a bad signature is spotten 
+     * 
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     */
     public void testCreateWalletBasicSignMessage() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
     {
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
     	
     	final String STRING_TO_SIGN= "Thing being signed";
-    	final String RANDOM_STRING = "Some Random String";
-    	
+    	final String RANDOM_STRING = "Some Random String";    	
     	final String messageSignature = CryptoUtils.signMessage(STRING_TO_SIGN,keypairFrom);
     	
     	boolean legit = CryptoUtils.verifySignature(STRING_TO_SIGN, messageSignature,keypairFrom);
@@ -69,7 +77,15 @@ public class WalletTester     extends TestCase
     	assertFalse("Bad Signature Failed",notlegit);
     }
     
-    public void testCreateWalletCreateTransaction() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException
+    /** Check that a root transaction can be created and a subsequent one hung off one of the root transaction's outputs
+     * 
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeySpecException
+     */
+    public void testCreateTransaction() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException
     {
         Wallet wallet = new Wallet();
     	CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
@@ -79,7 +95,12 @@ public class WalletTester     extends TestCase
     	final String STRING_TO_SIGN= "pay <key> <value>";    	
     	final String messageSignature = CryptoUtils.signMessage(STRING_TO_SIGN,keypairFrom);
     	
-    	Transaction transaction0 = createRootTransaction(outputKeyPair0,outputKeyPair1);
+    	ArrayList<CurrencyKeyPair> outputKeyPairs=new ArrayList<CurrencyKeyPair>();
+    	outputKeyPairs.add(outputKeyPair0);
+    	outputKeyPairs.add(outputKeyPair1);
+    	
+    	
+    	Transaction transaction0 = createRootTransaction(outputKeyPairs);
     	
     	System.out.println("testCreateWalletCreateTransaction() vvvv");
     	System.out.println(transaction0.getOutputString());
@@ -95,7 +116,20 @@ public class WalletTester     extends TestCase
     	System.out.println("testCreateWalletCreateTransaction() ^^^^");
     }
     
-
+    /** internal method which creates a transaction, hanging it off a pervious output
+     * 
+     * @param priorTransaction
+     * @param outputKeyPair0
+     * @param outputValue0
+     * @param outputKeyPair1
+     * @param outputValue1
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws SignatureException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeySpecException
+     */
     private Transaction createRealTransaction(Transaction priorTransaction,  
     										  CurrencyKeyPair outputKeyPair0, double outputValue0,
     										  CurrencyKeyPair outputKeyPair1, double outputValue1  ) 
@@ -135,22 +169,27 @@ public class WalletTester     extends TestCase
     	return transaction;
     }
     
-    private Transaction createRootTransaction(CurrencyKeyPair outputKey0 ,CurrencyKeyPair outputKey1) {
-    	TransactionInput input1 = new TransactionInput("no Txn",-1);
+    /** Internal method which creates the root transaction
+     * 
+     * @param outputKeys ArrayList of output keys
+     * @return a new Root Transaction for a blockchain
+     */
+    private Transaction createRootTransaction(ArrayList<CurrencyKeyPair> outputKeys) {
  	
     	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	TransactionInput input1 = new TransactionInput("no Txn",-1);
     	inputs.add(input1);
 
-    	
-    	TransactionOutput output0 = new TransactionOutput(0,5.5,outputKey0.getPubKeyAsString());
-    	TransactionOutput output1 = new TransactionOutput(1,4.5,outputKey1.getPubKeyAsString());
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	outputs.add(output0);
-    	outputs.add(output1);
+    	int index=0;
     	
-    	Transaction transaction = new Transaction(inputs,outputs);
+    	for (CurrencyKeyPair outputKey: outputKeys) {
+        	TransactionOutput output = new TransactionOutput(index++,5.5,outputKey.getPubKeyAsString());
+        	outputs.add(output);
+    	}
     	
-    	return transaction;
+    	return new Transaction(inputs,outputs);
+    	
     }
     
 

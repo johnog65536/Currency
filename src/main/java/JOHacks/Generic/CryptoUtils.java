@@ -118,6 +118,8 @@ public class CryptoUtils {
 		return true;
 	}
 
+
+	
 	public static PublicKey generatePubKey (String inputString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
 
 		byte[] encodedByteKey = getBytes(inputString);
