@@ -1,11 +1,7 @@
 package JOHacks.Generic;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.Timestamp;
 import java.util.ArrayList;
-import java.util.Formatter;
 
 public class Transaction {
 

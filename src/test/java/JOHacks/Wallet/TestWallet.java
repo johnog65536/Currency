@@ -83,65 +83,61 @@ public class TestWallet     extends TestCase
     public void testCreateTransaction() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException
     {
         final Wallet wallet = new Wallet();
-    	final CurrencyKeyPair keypairFrom = wallet.GenerateKeyPair("Paying From");
-    	final CurrencyKeyPair keypairTo = wallet.GenerateKeyPair("Paying To");
-    	
-    	final String STRING_TO_SIGN= "pay <key> <value>";    	
-    	final String messageSignature = CryptoUtils.signMessage(STRING_TO_SIGN,keypairFrom);
-    	
-    	// Create Root Transaction VVVVVV
+    	final String rootKeyPayLabel0 = "Paying to 0";
+    	final String rootKeyPayLabel1 = "Paying to 1";
     	final double rootValue=10;
-    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	
+    	final ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	final ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
+    	
+    	// VVVV Create Root Transaction VVVVVV    	    
     	TransactionInput input1 = new TransactionInput("no Txn",-1);
     	inputs.add(input1);
-
-    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	CurrencyKeyPair outputKeyPair0 = wallet.GenerateKeyPair("Paying to 0");
-    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
+    
+    	createTxnOutput(wallet,rootKeyPayLabel0,0,rootValue,outputs);
+    	createTxnOutput(wallet,rootKeyPayLabel1,1,rootValue,outputs);
     	
-    	TransactionOutput output0 = new TransactionOutput(0,rootValue,outputKeyPair0.getPubKeyAsString());
-    	TransactionOutput output1 = new TransactionOutput(1,rootValue,outputKeyPair1.getPubKeyAsString());
-    	outputs.add(output0);
-    	outputs.add(output1);
-   
     	final Transaction transaction0 = new Transaction(inputs,outputs);
-    	// Create Root Transaction ^^^^^^^
+    	// ^^^^^   Create Root Transaction ^^^^^^^
     	    	
     	System.out.println("testCreateWalletCreateTransaction() vvvv");
     	System.out.println(transaction0.getOutputString());
     	    	
-    	double paymentValue=4.5;
-    	int prevOutputIndex=0;
+    	final double paymentValue=4.5;
+    	final int prevOutputIndex=0;
+    	
+    	final CurrencyKeyPair outputKeyPair0=wallet.getKeyPair(rootKeyPayLabel0);
+    	final CurrencyKeyPair keypairTo=wallet.getKeyPair(rootKeyPayLabel1);
+    	
     	Transaction transaction1 = createRealTransaction ( transaction0, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
     	System.out.println(transaction1.getOutputString());
     	
-    	paymentValue=1.5;
-    	prevOutputIndex=1;
-    	Transaction transaction2 = createRealTransaction ( transaction1, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    	final double txn2Value=1.5;
+    	final int txn2prevOutputIndex=1;
+    	Transaction transaction2 = createRealTransaction ( transaction1, txn2prevOutputIndex,outputKeyPair0,keypairTo, txn2Value);
     	System.out.println(transaction2.getOutputString());    	
 
     	// Check the create transction fails if the key doing the spend doesnt match the key on the prior transactions prior output
-    	paymentValue=0.5;
-    	prevOutputIndex=0;
+    	final double txn3paymentValue=0.5;
+    	final int txn3prevOutputIndex=0;
     	boolean failed=false;
     	try {
-    		Transaction transaction3 = createRealTransaction ( transaction2, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
+    		Transaction transaction3 = createRealTransaction ( transaction2, txn3prevOutputIndex,outputKeyPair0,keypairTo, txn3paymentValue);
     		System.out.println(transaction3.getOutputString());
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with invalid keys",failed);
 
     	
     	// Check the create transction fails if the outputs exceed the inputs
-    	paymentValue=20;
-    	prevOutputIndex=1;
+    	final double txn4Value=20;
+    	final int txn4prevOutputIndex=1;
         failed=false;
     	try {
-    		Transaction transaction3 = createRealTransaction ( transaction2, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
-    		System.out.println(transaction3.getOutputString());
+    		Transaction transaction4 = createRealTransaction ( transaction2, txn4prevOutputIndex,outputKeyPair0,keypairTo, txn4Value);
+    		System.out.println(transaction4.getOutputString());
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with too big a spend",failed);
 
-    	
     	
     	System.out.println("testCreateWalletCreateTransaction() ^^^^");
     }
@@ -199,30 +195,11 @@ public class TestWallet     extends TestCase
     	return transaction;
     }
     
-    /** Internal method which creates the root transaction
-     * 
-     * @param outputKeys ArrayList of output keys
-     * @return a new Root Transaction for a blockchain
-     * @throws NoSuchAlgorithmException 
-     */
-    private Transaction createRootTransaction(Wallet wallet, double value) throws NoSuchAlgorithmException {
-     	
-    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
-    	TransactionInput input1 = new TransactionInput("no Txn",-1);
-    	inputs.add(input1);
-
-    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	CurrencyKeyPair outputKeyPair0 = wallet.GenerateKeyPair("Paying to 0");
-    	CurrencyKeyPair outputKeyPair1 = wallet.GenerateKeyPair("Paying to 1");
-    	
-    	TransactionOutput output0 = new TransactionOutput(0,value,outputKeyPair0.getPubKeyAsString());
-    	TransactionOutput output1 = new TransactionOutput(1,value,outputKeyPair1.getPubKeyAsString());
-    	outputs.add(output0);
-    	outputs.add(output1);
-   
-    	return new Transaction(inputs,outputs);
-    	
+    private void createTxnOutput(Wallet wallet, String keyLabel, int index, double value,ArrayList<TransactionOutput> outputs) throws NoSuchAlgorithmException {
+    	CurrencyKeyPair outputKeyPair = wallet.GenerateKeyPair(keyLabel);
+    	String pubKeyString = outputKeyPair.getPubKeyAsString();
+    	TransactionOutput outputTransaction = new TransactionOutput(index,value,pubKeyString);
+    	outputs.add(outputTransaction);
     }
-    
 
 }
