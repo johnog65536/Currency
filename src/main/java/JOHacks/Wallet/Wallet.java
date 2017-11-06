@@ -27,6 +27,7 @@ public class Wallet {
 		return keyPairs.get(name);
 	}
 	
+	
 	private void UpdateBalances() {
 		// get a miner
 		// get block chain

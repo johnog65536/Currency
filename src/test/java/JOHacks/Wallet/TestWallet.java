@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 
 public class TestWallet     extends TestCase
 {
-    /**
+	/**
      * Create the test case
      *
      * @param testName name of the test case
@@ -83,65 +83,73 @@ public class TestWallet     extends TestCase
     public void testCreateTransaction() throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException
     {
         final Wallet wallet = new Wallet();
-    	final String rootKeyPayLabel0 = "Paying to 0";
-    	final String rootKeyPayLabel1 = "Paying to 1";
+    	final String rootKeyPayLabel0 = "Root Key 0";
+    	final String rootKeyPayLabel1 = "Root Key 1";
+    	final String payeeLabel0 = "Payee 0";
     	final double rootValue=10;
     	
     	final ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
     	final ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
     	
+    	// create key which will recieve payments
+    	wallet.GenerateKeyPair(rootKeyPayLabel0);
+    	wallet.GenerateKeyPair(rootKeyPayLabel1);
+    	wallet.GenerateKeyPair(payeeLabel0);
+    	
     	// VVVV Create Root Transaction VVVVVV    	    
-    	TransactionInput input1 = new TransactionInput("no Txn",-1);
+    	final TransactionInput input1 = new TransactionInput("no Txn",-1);
     	inputs.add(input1);
     
-    	createTxnOutput(wallet,rootKeyPayLabel0,0,rootValue,outputs);
-    	createTxnOutput(wallet,rootKeyPayLabel1,1,rootValue,outputs);
+    	outputs.add(createTxnOutput(wallet,rootKeyPayLabel0,0,rootValue));
+    	outputs.add(createTxnOutput(wallet,rootKeyPayLabel1,1,rootValue));
     	
     	final Transaction transaction0 = new Transaction(inputs,outputs);
     	// ^^^^^   Create Root Transaction ^^^^^^^
     	    	
-    	System.out.println("testCreateWalletCreateTransaction() vvvv");
-    	System.out.println(transaction0.getOutputString());
+    	log("testCreateWalletCreateTransaction() vvvv");
+    	log(transaction0.getOutputString());
+    	    	   	
+    	final CurrencyKeyPair sourceTxnKey=wallet.getKeyPair(rootKeyPayLabel0);
+    	final CurrencyKeyPair keyToPay=wallet.getKeyPair(payeeLabel0);
     	    	
+    	// standard initial transaction
     	final double paymentValue=4.5;
     	final int prevOutputIndex=0;
+    	final Transaction transaction1 = createRealTransaction ( transaction0, prevOutputIndex,sourceTxnKey,keyToPay, paymentValue);
+    	log(transaction1.getOutputString());
     	
-    	final CurrencyKeyPair outputKeyPair0=wallet.getKeyPair(rootKeyPayLabel0);
-    	final CurrencyKeyPair keypairTo=wallet.getKeyPair(rootKeyPayLabel1);
-    	
-    	Transaction transaction1 = createRealTransaction ( transaction0, prevOutputIndex,outputKeyPair0,keypairTo, paymentValue);
-    	System.out.println(transaction1.getOutputString());
-    	
+    	// standard second transaction
     	final double txn2Value=1.5;
     	final int txn2prevOutputIndex=1;
-    	Transaction transaction2 = createRealTransaction ( transaction1, txn2prevOutputIndex,outputKeyPair0,keypairTo, txn2Value);
-    	System.out.println(transaction2.getOutputString());    	
+    	final Transaction transaction2 = createRealTransaction ( transaction1, txn2prevOutputIndex,sourceTxnKey,keyToPay, txn2Value);
+    	log(transaction2.getOutputString());    	
 
     	// Check the create transction fails if the key doing the spend doesnt match the key on the prior transactions prior output
     	final double txn3paymentValue=0.5;
     	final int txn3prevOutputIndex=0;
     	boolean failed=false;
     	try {
-    		Transaction transaction3 = createRealTransaction ( transaction2, txn3prevOutputIndex,outputKeyPair0,keypairTo, txn3paymentValue);
-    		System.out.println(transaction3.getOutputString());
+    		final Transaction transaction3 = createRealTransaction ( transaction2, txn3prevOutputIndex,sourceTxnKey,keyToPay, txn3paymentValue);
+    		log(transaction3.getOutputString());
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with invalid keys",failed);
-
     	
     	// Check the create transction fails if the outputs exceed the inputs
     	final double txn4Value=20;
     	final int txn4prevOutputIndex=1;
         failed=false;
     	try {
-    		Transaction transaction4 = createRealTransaction ( transaction2, txn4prevOutputIndex,outputKeyPair0,keypairTo, txn4Value);
-    		System.out.println(transaction4.getOutputString());
+    		final Transaction transaction4 = createRealTransaction ( transaction2, txn4prevOutputIndex,sourceTxnKey,keyToPay, txn4Value);
+    		log(transaction4.getOutputString());
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with too big a spend",failed);
 
     	
-    	System.out.println("testCreateWalletCreateTransaction() ^^^^");
+    	log("testCreateWalletCreateTransaction() ^^^^");
     }
     
+    
+    // todo write a shim allowing multiple inputs and outputs
     /** internal method which creates a transaction, hanging it off a previous output
      * 
      * @param priorTransaction
@@ -156,8 +164,7 @@ public class TestWallet     extends TestCase
      * @throws UnsupportedEncodingException
      * @throws InvalidKeySpecException
      */
-    private Transaction createRealTransaction(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey,
-    		CurrencyKeyPair outputKeyPair, double outputValue  ) 
+    private Transaction createRealTransaction(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey, CurrencyKeyPair outputKeyPair, double outputValue  ) 
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException{
     	
     	// build the inputs
@@ -170,6 +177,7 @@ public class TestWallet     extends TestCase
     	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),sourceKey);
     	
     	// Check the above signing is working, by cross validating against a known crap key
+    	// todo, shift this to its own test Method
     	boolean thrown=false;
     	try {
     		Wallet w = new Wallet();
@@ -182,12 +190,11 @@ public class TestWallet     extends TestCase
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
     	TransactionOutput output0 = new TransactionOutput(0,outputValue,outputKeyPair.getPubKeyAsString());
     	
-    	double origTransactionValue=priorOutput0.getValue();
-    	String origTransactionPubKey=priorOutput0.getPubKey();
-    	
+    	double origTransactionValue=priorOutput0.getValue();    	
     	double changeAmount=origTransactionValue - outputValue;
     	if (changeAmount<0) throw new InvalidKeyException("Insufficient Funds");
-    	TransactionOutput change = new TransactionOutput(1,changeAmount,origTransactionPubKey);
+
+    	TransactionOutput change = new TransactionOutput(1,changeAmount,priorOutput0.getPubKey());
     	outputs.add(output0);
     	outputs.add(change);
     	Transaction transaction = new Transaction(inputs,outputs);
@@ -195,11 +202,21 @@ public class TestWallet     extends TestCase
     	return transaction;
     }
     
-    private void createTxnOutput(Wallet wallet, String keyLabel, int index, double value,ArrayList<TransactionOutput> outputs) throws NoSuchAlgorithmException {
-    	CurrencyKeyPair outputKeyPair = wallet.GenerateKeyPair(keyLabel);
-    	String pubKeyString = outputKeyPair.getPubKeyAsString();
-    	TransactionOutput outputTransaction = new TransactionOutput(index,value,pubKeyString);
-    	outputs.add(outputTransaction);
+    private TransactionOutput createTxnOutput(Wallet wallet, String keyLabel, int index, double value) throws NoSuchAlgorithmException {
+    	CurrencyKeyPair outputKeyPair = wallet.getKeyPair(keyLabel);
+    	// bit hacky - todo
+    	if (outputKeyPair==null) 
+    		outputKeyPair = wallet.GenerateKeyPair(keyLabel);
+    	
+    	String pubKeyString = outputKeyPair.getPubKeyAsString();    	
+    	
+    	return new TransactionOutput(index,value,pubKeyString);    	
     }
 
+    //todo unbodge this
+	final private boolean LOGGING_ON = true;
+    private void log(String tolog) {
+    	if (LOGGING_ON)
+    		System.out.println(tolog);
+    }
 }
