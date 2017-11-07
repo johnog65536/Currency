@@ -124,6 +124,10 @@ public class TestWallet     extends TestCase
     	final Transaction transaction2 = createRealTransaction ( transaction1, txn2prevOutputIndex,sourceTxnKey,keyToPay, txn2Value);
     	log(transaction2.getOutputString());    	
 
+    	// validate transactions signing works
+    	final int outputIndex=0;
+    	testValidateSigning(transaction2,outputIndex,keyToPay);
+    	
     	// Check the create transction fails if the key doing the spend doesnt match the key on the prior transactions prior output
     	final double txn3paymentValue=0.5;
     	final int txn3prevOutputIndex=0;
@@ -134,7 +138,7 @@ public class TestWallet     extends TestCase
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with invalid keys",failed);
     	
-    	// Check the create transction fails if the outputs exceed the inputs
+    	// Check the create transaction fails if the outputs exceed the inputs
     	final double txn4Value=20;
     	final int txn4prevOutputIndex=1;
         failed=false;
@@ -143,27 +147,43 @@ public class TestWallet     extends TestCase
     		log(transaction4.getOutputString());
     	} catch(InvalidKeyException e) {failed=true;}
     	assertTrue("Last transaction should have failed with too big a spend",failed);
-
     	
     	log("testCreateWalletCreateTransaction() ^^^^");
     }
     
     
+    private void testValidateSigning(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException {
+    	TransactionOutput priorOutput0 = priorTransaction.getOutput(prevOutputIndex);
+    	
+    	// Validate that the pubKey listed on the previous transaction == that of the key trying to do the spend    	
+    	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),sourceKey);
+    	
+    	// Check the above signing is working, by cross validating against a known crap key
+    	boolean thrown=false;
+    	try {
+    		Wallet w = new Wallet();
+    		CurrencyKeyPair badKeyPair = w.GenerateKeyPair("Bad Key Pair");
+    		CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),badKeyPair);
+    	} catch (InvalidKeyException e) {thrown = true;}
+    	assertTrue("Key validation should have failed",thrown);
+    }
+    
+    
     // todo write a shim allowing multiple inputs and outputs
-    /** internal method which creates a transaction, hanging it off a previous output
-     * 
-     * @param priorTransaction
-     * @param outputKeyPair0
-     * @param outputValue0
-     * @param outputKeyPair1
-     * @param outputValue1
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws UnsupportedEncodingException
-     * @throws InvalidKeySpecException
-     */
+/** internal method which creates a transaction, hanging it off a previous output
+ * 
+ * @param priorTransaction
+ * @param prevOutputIndex
+ * @param sourceKey
+ * @param outputKeyPair
+ * @param outputValue
+ * @return
+ * @throws NoSuchAlgorithmException
+ * @throws InvalidKeyException
+ * @throws SignatureException
+ * @throws UnsupportedEncodingException
+ * @throws InvalidKeySpecException
+ */
     private Transaction createRealTransaction(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey, CurrencyKeyPair outputKeyPair, double outputValue  ) 
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException{
     	
@@ -175,17 +195,7 @@ public class TestWallet     extends TestCase
     	
     	// Validate that the pubKey listed on the previous transaction == that of the key trying to do the spend    	
     	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),sourceKey);
-    	
-    	// Check the above signing is working, by cross validating against a known crap key
-    	// todo, shift this to its own test Method
-    	boolean thrown=false;
-    	try {
-    		Wallet w = new Wallet();
-    		CurrencyKeyPair badKeyPair = w.GenerateKeyPair("Bad Key Pair");
-    		CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),badKeyPair);
-    	} catch (InvalidKeyException e) {thrown = true;}
-    	assertTrue("Key validation should have failed",thrown);
-    	
+    	   	
     	// build the outputs
     	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
     	TransactionOutput output0 = new TransactionOutput(0,outputValue,outputKeyPair.getPubKeyAsString());
