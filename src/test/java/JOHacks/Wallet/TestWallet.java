@@ -151,7 +151,17 @@ public class TestWallet     extends TestCase
     	log("testCreateWalletCreateTransaction() ^^^^");
     }
     
-    
+    /** checks that transaction signing works (positive) and that an attempt to use the wrong key fails
+     * 
+     * @param priorTransaction
+     * @param prevOutputIndex
+     * @param sourceKey
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeySpecException
+     */
     private void testValidateSigning(Transaction priorTransaction, int prevOutputIndex, CurrencyKeyPair sourceKey) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException {
     	TransactionOutput priorOutput0 = priorTransaction.getOutput(prevOutputIndex);
     	
@@ -188,32 +198,33 @@ public class TestWallet     extends TestCase
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, InvalidKeySpecException{
     	
     	// build the inputs
-    	ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
-    	TransactionOutput priorOutput0 = priorTransaction.getOutput(prevOutputIndex);
-    	TransactionInput input0 =new TransactionInput(priorOutput0.getHash(),priorOutput0.getIndex());
+    	final ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	final TransactionOutput priorOutput0 = priorTransaction.getOutput(prevOutputIndex);
+    	final TransactionInput input0 =new TransactionInput(priorOutput0.getHash(),priorOutput0.getIndex());
     	inputs.add(input0);
     	
     	// Validate that the pubKey listed on the previous transaction == that of the key trying to do the spend    	
     	CryptoUtils.validateKeyPair(CryptoUtils.generatePubKey(priorOutput0.getPubKey()),sourceKey);
     	   	
     	// build the outputs
-    	ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
-    	TransactionOutput output0 = new TransactionOutput(0,outputValue,outputKeyPair.getPubKeyAsString());
+    	final ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
+    	final TransactionOutput output0 = new TransactionOutput(0,outputValue,outputKeyPair.getPubKeyAsString());
     	
-    	double origTransactionValue=priorOutput0.getValue();    	
-    	double changeAmount=origTransactionValue - outputValue;
+    	final double origTransactionValue=priorOutput0.getValue();    	
+    	final double changeAmount=origTransactionValue - outputValue;
     	if (changeAmount<0) throw new InvalidKeyException("Insufficient Funds");
 
-    	TransactionOutput change = new TransactionOutput(1,changeAmount,priorOutput0.getPubKey());
+    	final TransactionOutput change = new TransactionOutput(1,changeAmount,priorOutput0.getPubKey());
     	outputs.add(output0);
     	outputs.add(change);
-    	Transaction transaction = new Transaction(inputs,outputs);
     	
+    	final Transaction transaction = new Transaction(inputs,outputs);    	
     	return transaction;
     }
     
     private TransactionOutput createTxnOutput(Wallet wallet, String keyLabel, int index, double value) throws NoSuchAlgorithmException {
     	CurrencyKeyPair outputKeyPair = wallet.getKeyPair(keyLabel);
+    	
     	// bit hacky - todo
     	if (outputKeyPair==null) 
     		outputKeyPair = wallet.GenerateKeyPair(keyLabel);
