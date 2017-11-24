@@ -16,15 +16,14 @@ import sun.misc.BASE64Encoder;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
+public class TestApp   extends TestCase
 {
     /**
      * Create the test case
      *
      * @param testName name of the test case
      */
-    public AppTest( String testName )
+    public TestApp( String testName )
     {
         super( testName );
     }
@@ -34,20 +33,17 @@ public class AppTest
      */
     public static Test suite()
     {
-        return new TestSuite( AppTest.class );
+        return new TestSuite( TestApp.class );
     }
 
 
-    
+    /** todo explain what this does
+     * 
+     * @throws UnsupportedEncodingException
+     */
     public void testMinerSha1doStuff() throws UnsupportedEncodingException {
 
-    	
+    	// todo do some useful test
     }
     
-    private void out(String label, String message) {
-    	System.out.println("\""+label+"\""+message+"\"");
-    }
-    
-    
-
 }

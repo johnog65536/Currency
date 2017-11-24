@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -118,6 +119,8 @@ public class CryptoUtils {
 		return true;
 	}
 
+
+	
 	public static PublicKey generatePubKey (String inputString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
 
 		byte[] encodedByteKey = getBytes(inputString);
@@ -127,5 +130,12 @@ public class CryptoUtils {
 		
 		return kf.generatePublic(X509publicKey);  
 		
+	}
+
+	public static KeyPair getKeyPair() throws NoSuchAlgorithmException {
+		KeyPairGenerator keyGen=null;
+		keyGen = KeyPairGenerator.getInstance(KEY_TYPE);
+        keyGen.initialize(512);
+        return keyGen.genKeyPair();
 	}
 }

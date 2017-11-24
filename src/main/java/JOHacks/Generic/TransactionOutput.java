@@ -23,4 +23,5 @@ public class TransactionOutput {
 	public int getIndex() {return index;}
 	public String getHash() {return CryptoUtils.calcHash(getOutputString());}
 	public String getPubKey() {return pubKey;}
+	public double getValue() {return value;}
 }

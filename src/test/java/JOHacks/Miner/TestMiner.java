@@ -1,6 +1,6 @@
 package JOHacks.Miner;
 
-import JOHacks.AppTest;
+import JOHacks.TestApp;
 import JOHacks.Generic.CryptoUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -27,7 +27,9 @@ public class TestMiner     extends TestCase
     }
 
 
-    
+    /** 
+     * Check the miner can be created and that it is able to do SHA1 hashing
+     */
     public void testMinerSha1Hash() {
     	Miner miner = new Miner();
     	String helloWorld="hello world";
