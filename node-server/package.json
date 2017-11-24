@@ -1,0 +1,19 @@
+{
+  "name": "currency-server",
+  "version": "1.0.0",
+  "description": "Server side blockchain",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnog65536/Currency.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnog65536/Currency/issues"
+  },
+  "homepage": "https://github.com/johnog65536/Currency#readme"
+}
