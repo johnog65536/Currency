@@ -24,15 +24,7 @@ Block.prototype.getBlockHash = function () {
 };
 
 Block.prototype.export = function () {
-  var data = {
-    block_id: this.blockID,
-    nonce: this.nonce,
-    prev_hash: this.prevHash,
-    timestamp: this.timestamp,
-    transaction: this.tData,
-    hash: this.getBlockHash()
-  }
-  return data;
+  return JSON.stringify(this);
 }
 
 // export the class
