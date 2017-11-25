@@ -13,17 +13,15 @@ function Miner(blockchainName) {
     this.blockchain = new Blockchain(blockchainName);
     this.blockchain.saveChain();
   }
-  console.log("Miner successfully loaded blockchain: " + this.blockchain);
+  console.log("Miner successfully loaded blockchain: " + blockchainName );
 }
+
 
 Miner.prototype.check = function () {
 
 };
 
-Miner.prototype.confirm = function(blockHash, blockIndex, blockTime) {
 
-
-};
 
 
 
