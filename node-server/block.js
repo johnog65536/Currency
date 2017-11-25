@@ -11,15 +11,14 @@ function Block(blockInstance, prevHash, tData) {
     this.timestamp = + new Date();
     this.tData = tData;
     this.nonce = Math.random()*101|0;
-
-    this.hash = crypto.createHash('sha256')
-    this.hash.update(this.getCompleteBlock());
-    this.hashString = this.hash.digest('hex');
-    delete this.hash;
+    this.hashString = this.getCompleteBlockHash();
 }
 
-Block.prototype.getCompleteBlock = function () {
-  return this.prevHash + this.timestamp + this.nonce + this.tData;
+Block.prototype.getCompleteBlockHash = function () {
+  this.hash = crypto.createHash('sha256')
+  this.hash.update(this.prevHash + this.timestamp + this.nonce + this.tData);
+  var hashStr = this.hash.digest('hex');
+  return hashStr;
 };
 
 Block.prototype.getBlockHash = function () {
