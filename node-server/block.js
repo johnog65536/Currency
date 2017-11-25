@@ -3,6 +3,9 @@ const crypto = require('crypto')
 
 // Constructor
 function Block(blockInstance, prevHash, tData) {
+    if(blockInstance==undefined){
+      return;
+    }
     this.blockID = blockInstance;
     this.prevHash = prevHash;
     this.timestamp = + new Date();
@@ -12,7 +15,7 @@ function Block(blockInstance, prevHash, tData) {
     this.hash = crypto.createHash('sha256')
     this.hash.update(this.getCompleteBlock());
     this.hashString = this.hash.digest('hex');
-
+    delete this.hash;
 }
 
 Block.prototype.getCompleteBlock = function () {
