@@ -3,18 +3,44 @@ var Block = require('./block');
 var fs = require('fs');
 
 // Constructor
-function Blockchain(chainName) {
-
+function Blockchain(chainName, data) {
   this.name = chainName;
-  this.creation = + new Date();
-  this.lastUpdated = this.creation;
-  // Create genesis block
   this.blockList = [];
-  this.blockList.push(new Block(0, 0, "In the beginning, there was the block"));
-  // There will only every be one at this stage
-  this.prevHash = this.blockList[0].getBlockHash();
-  this.blockID = 0;
+  if(data==undefined){
+    console.log("Creating new blockchain: " + chainName);
+    this.creation = + new Date();
+    this.lastUpdated = this.creation;
+    // Create genesis block
+    this.blockList.push(new Block(0, 0, "In the beginning, there was the block"));
+    // There will only every be one at this stage
+    this.prevHash = this.blockList[0].getBlockHash();
+    this.blockID = 0;
+  } else {
+    console.log("Loading blockchain from data");
+    var inputObj = JSON.parse(data);
+    this.creation = inputObj.creation_timestamp;
+    this.lastUpdated = inputObj.last_updated;
+    this.blockList = mapBlockData(inputObj.blocks);
+  }
 }
+
+function mapBlockData(blocks){
+  var blockArr = [];
+  var blocksToMap = JSON.parse(JSON.stringify(blocks));
+  for (var i = 0; i < blocksToMap.length; i++) {
+    var block = new Block();
+    var blockToMap = JSON.parse(blocksToMap[i]);
+    block.blockID = blockToMap.blockID;
+    block.prevHash = blockToMap.prevHash;
+    block.timestamp = blockToMap.timestamp;
+    block.tData = blockToMap.tData;
+    block.nonce = blockToMap.nonce;
+    block.hashString = blockToMap.hashString;
+    blockArr.push(block);
+  }
+  return blockArr;
+}
+
 
 Blockchain.prototype.method = function () {
   var newBlock = new Block(0, "test");
