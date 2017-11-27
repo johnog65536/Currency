@@ -3,20 +3,22 @@ const crypto = require('crypto')
 
 // Constructor
 function Block(blockInstance, prevHash, tData) {
+    if(blockInstance==undefined){
+      return;
+    }
     this.blockID = blockInstance;
     this.prevHash = prevHash;
     this.timestamp = + new Date();
     this.tData = tData;
     this.nonce = Math.random()*101|0;
-
-    this.hash = crypto.createHash('sha256')
-    this.hash.update(this.getCompleteBlock());
-    this.hashString = this.hash.digest('hex');
-
+    this.hashString = this.getCompleteBlockHash();
 }
 
-Block.prototype.getCompleteBlock = function () {
-  return this.prevHash + this.timestamp + this.nonce + this.tData;
+Block.prototype.getCompleteBlockHash = function () {
+  this.hash = crypto.createHash('sha256')
+  this.hash.update(this.prevHash + this.timestamp + this.nonce + this.tData);
+  var hashStr = this.hash.digest('hex');
+  return hashStr;
 };
 
 Block.prototype.getBlockHash = function () {
@@ -24,15 +26,7 @@ Block.prototype.getBlockHash = function () {
 };
 
 Block.prototype.export = function () {
-  var data = {
-    block_id: this.blockID,
-    nonce: this.nonce,
-    prev_hash: this.prevHash,
-    timestamp: this.timestamp,
-    transaction: this.tData,
-    hash: this.getBlockHash()
-  }
-  return data;
+  return JSON.stringify(this);
 }
 
 // export the class
