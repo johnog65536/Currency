@@ -12,7 +12,7 @@ function Blockchain(chainName, data) {
     this.creation = + new Date();
     this.lastUpdated = this.creation;
     // Create genesis block
-    this.blockList.push(new Block(0, 0, "In the beginning, there was the block"));
+    this.blockList.push(new Block(0, 0, "Genesis"));
     // There will only every be one at this stage
     this.prevHash = this.blockList[0].getBlockHash();
     this.blockID = 0;
