@@ -15,9 +15,9 @@ function Block(blockInstance, prevHash, tData) {
 }
 
 Block.prototype.getCompleteBlockHash = function () {
-  this.hash = crypto.createHash('sha256')
-  this.hash.update(this.prevHash + this.timestamp + this.nonce + this.tData);
-  var hashStr = this.hash.digest('hex');
+  var hash = crypto.createHash('sha256')
+  hash.update(this.prevHash + this.timestamp + this.nonce + this.tData);
+  var hashStr = hash.digest('hex');
   return hashStr;
 };
 
