@@ -7,6 +7,8 @@ function Transaction(amount, fromAddress, toAddress, comment) {
   this.confirmations = 0;
   this.time = + new Date();
   this.comment = comment;
+  this.fromAddress = fromAddress;
+  this.toAddress = toAddress;
   this.details = [
       {
         address: fromAddress,

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Server side blockchain",
   "main": "main.js",
+  "dependencies": {
+    "express": "~4.0.0",
+    "body-parser": "~1.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/johnog65536/Currency/issues"
   },
-  "homepage": "https://github.com/johnog65536/Currency#readme"
+  "homepage": "https://github.com/johnog65536/Currency#readme",
+  "devDependencies": {
+    "nodemon": "^1.12.4"
+  }
 }
