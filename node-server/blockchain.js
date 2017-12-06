@@ -151,6 +151,10 @@ Blockchain.prototype.validateFull = function() {
   return true;
 }
 
+Blockchain.prototype.getBlock = function(blockId) {
+  //TODO
+}
+
 
 
 

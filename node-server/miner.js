@@ -17,12 +17,17 @@ function Miner(blockchainName) {
 }
 
 
-Miner.prototype.check = function () {
-
+Miner.prototype.confirm = function () {
+  // confirm pending into block into chain
 };
 
+Miner.prototype.addTransaction = function (transaction) {
+  // add into pending
+}
 
-
+Miner.prototype.getTransaction = function (state, id) {
+  // add into pending
+}
 
 
 
