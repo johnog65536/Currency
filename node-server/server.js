@@ -4,9 +4,9 @@ var express    = require('express');
 var app        = express();
 var bodyParser = require('body-parser');
 
-var Blockchain = require('./blockchain');
+var Blockchain  = require('./blockchain');
 var Transaction = require('./transaction');
-var Miner = require('./miner');
+var Miner       = require('./miner');
 
 const miner = new Miner("test") //temp hardcoded name
 
@@ -31,25 +31,26 @@ router.get('/confirmed', function(req, res) {
 });
 
 router.route('/create')
-    .post(function(req,res){
-        var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
-        miner.addTransaction(transaction)
-        res.json({ message: 'Transaction created!' });
+      .post(function(req,res){
+          var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
+          miner.addTransaction(transaction)
+          res.json({ message: 'Transaction created!' });
 })
 
-router.get('/blockchain', function(req, res) {
-    //TODO url id parameter
-    res.json({ blockchain: miner.blockchain });
+router.route('/blockchain')
+       .get(function(req, res) {
+          //TODO url id parameter
+          res.json({ blockchain: miner.blockchain });
 });
 
-router.get('/block', function(req, res) {
-    //TODO url blockId parameter
-    res.json({ blockchain: miner.blockchain.getBlock("blockId") });
+router.route('/block/:blockId')
+      .get(function(req, res) {
+        res.json({ blockchain: miner.blockchain.getBlock(req.params.blockId)});
 });
 
-router.get('/cofirm-transactions', function(req, res) {
+router.get('/cofirm-transactions/:blockId', function(req, res) {
     //TODO url blockId parameter
-    res.json({ status: miner.confirm() });
+    res.json({ status: miner.confirm(req.params.blockId) });
 });
 
 // all of our routes will be prefixed with /api
