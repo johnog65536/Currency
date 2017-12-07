@@ -19,14 +19,17 @@ function Miner(blockchainName) {
 
 Miner.prototype.confirm = function () {
   // confirm pending into block into chain
+  return "confirm"
 };
 
 Miner.prototype.addTransaction = function (transaction) {
   // add into pending
+  return JSON.stringify(transaction)
 }
 
 Miner.prototype.getTransaction = function (state, id) {
   // add into pending
+  return state + " " + id
 }
 
 
