@@ -16,6 +16,38 @@ To run main.js
 node main.js
 ```
 
+#### API overview
+Run the api SERVER
+```
+node server.js
+```
+All these calls if done locally are on: http://localhost:8080/api
+
+```
+GET /pending
+```
+Get all pending transactions
+```
+GET /confirmed
+```
+Get all confirmed transactions
+```
+POST /create
+```
+Create a transaction
+```
+GET /blockchain
+```
+Get the whole blockchain - for init
+```
+GET /block/:blockId
+```
+Get a single block using block id
+```
+POST /confirm-transactions
+```
+Signal the server to confirm transactions TEST PURPOSES ONLY
+
 ### Prerequisites
 npm, Maven, JUnit
 
