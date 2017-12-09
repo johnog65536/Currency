@@ -12,6 +12,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Formatter;
@@ -122,20 +123,39 @@ public class CryptoUtils {
 
 	
 	public static PublicKey generatePubKey (String inputString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
-
 		byte[] encodedByteKey = getBytes(inputString);
 		byte[] byteKey=Base64ToUTF(encodedByteKey);
 		X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey); 
 		KeyFactory kf = KeyFactory.getInstance(KEY_TYPE); 
 		
-		return kf.generatePublic(X509publicKey);  
-		
+		return kf.generatePublic(X509publicKey);  		
 	}
 
+	public static PrivateKey generatePrivKey (String inputString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
+		byte[] encodedByteKey = getBytes(inputString);
+		byte[] byteKey=Base64ToUTF(encodedByteKey);
+		PKCS8EncodedKeySpec X509privateKey = new PKCS8EncodedKeySpec(byteKey); 
+		KeyFactory kf = KeyFactory.getInstance(KEY_TYPE); 
+		
+		return kf.generatePrivate(X509privateKey);  		
+	}
+	
 	public static KeyPair getKeyPair() throws NoSuchAlgorithmException {
 		KeyPairGenerator keyGen=null;
 		keyGen = KeyPairGenerator.getInstance(KEY_TYPE);
         keyGen.initialize(512);
         return keyGen.genKeyPair();
 	}
+	
+	public static KeyPair getKeyPair(PortableKeyPair portableKeyPair) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
+		KeyPair keyPair=null;
+		
+		PublicKey publicKey=generatePubKey(portableKeyPair.getPubKey());
+		PrivateKey privateKey=generatePrivKey(portableKeyPair.getPrivKey());
+		
+
+		return new KeyPair (publicKey,privateKey);		
+	}
+	
+	
 }

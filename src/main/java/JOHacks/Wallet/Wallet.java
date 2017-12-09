@@ -1,10 +1,13 @@
 package JOHacks.Wallet;
 
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import JOHacks.Generic.CurrencyKeyPair;
+import JOHacks.Generic.PortableKeyPair;
 import JOHacks.Generic.Transaction;
 
 public class Wallet {
@@ -20,6 +23,13 @@ public class Wallet {
 	public CurrencyKeyPair GenerateKeyPair(String name) throws NoSuchAlgorithmException {
 		CurrencyKeyPair pair = new CurrencyKeyPair(name);
 		keyPairs.put(name,pair);
+		return pair;
+	}
+	
+	
+	public CurrencyKeyPair GenerateKeyPair(PortableKeyPair portableKeyPair) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeySpecException {
+		CurrencyKeyPair pair = new CurrencyKeyPair(portableKeyPair);
+		keyPairs.put(portableKeyPair.getName(),pair);
 		return pair;
 	}
 	
