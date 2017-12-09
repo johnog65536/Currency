@@ -58,14 +58,3 @@ public class TestJSON {
     }
 }
 
-
-/*
-	String brand;
-	int doors;
-	
-	
-		String json = "{\"brand\":\"Jeep\", \"doors\": 3}";		
-		TestJSON test = gson.fromJson(json, TestJSON.class);
-		log (test.brand);
-		log (""+test.doors);
-*/
