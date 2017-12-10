@@ -68,6 +68,16 @@ Miner.prototype.addTransaction = function (transaction) {
 
 Miner.prototype.getTransaction = function (state, id) {
   // add into pending
+  var confirmedTransactions = [];
+  for (var i = 0; i < this.blockchain.blockList.length; i++) {
+    var transactions = this.blockchain.blockList[i].tData;
+    for (var i = 0; i < transactions.length; i++) {
+      confirmedTransactions.push(transactions[i]);
+      if(transactions[i].txId == id){
+        return transactions[i];
+      }
+    }
+  }
   return state + " " + id
   // if state empty, get all
   // if id empty get all of state
