@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 var fs = require('fs');
 var Blockchain = require('./blockchain');
+var Transaction = require('./transaction');
 
 const pendingFilename = 'pending_transactions.json';
 
@@ -30,12 +31,19 @@ Miner.prototype.confirm = function () {
     return "No available pending transactions";
   }
   var transactions = JSON.parse(pendingTransactions);
-  for (var i = 0; i < transactions.length; i++) {
-    var transaction = new Transaction();
-    transaction.create(transactions[i]);
-    transaction.confirm();
-    transactionsToConfirm.push(transaction);
+  console.log(transactions)
+  var transactionsToConfirm = transactions['transactions'];
+  console.log(transactionsToConfirm)
+  console.log("len: " + transactionsToConfirm.length)
+  for (var i = 0; i < transactionsToConfirm.length; i++) {
+    var transaction = new Transaction("", "", "", "");
+    transaction.create(transactionsToConfirm[i]);
+    confirmedTransactions.push(transaction);
   }
+
+  this.blockchain.addBlock(confirmedTransactions);
+  this.blockchain.saveChain();
+  fs.unlinkSync(pendingFilename);
   return "Successfully confirmed " + confirmedTransactions.length + " details: " + JSON.stringify(confirmedTransactions);
 };
 
