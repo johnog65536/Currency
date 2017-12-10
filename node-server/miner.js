@@ -60,7 +60,9 @@ Miner.prototype.addTransaction = function (transaction) {
     pendingTransactions = pendingTransactions.replace("]}", "")
     pendingTransactions += ","
   }
+  console.log("Adding new transaction to file " + JSON.stringify(transaction));
   pendingTransactions += JSON.stringify(transaction) + "]}";
+  console.log(pendingTransactions);
   fs.writeFile(pendingFilename, pendingTransactions,'utf8', function callback(err, data){
     if(err){
       console.log(err);

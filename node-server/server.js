@@ -29,6 +29,7 @@ router.get('/confirmed/:txId', function(req, res) {
 router.route('/create')
   .post(function(req,res){
       var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
+      console.log("Creating transaction: " + JSON.stringify(transaction));
       var id = miner.addTransaction(transaction)
       res.json({ message: 'Transaction created: ' + id });
 })

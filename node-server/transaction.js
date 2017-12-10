@@ -64,7 +64,8 @@ Transaction.prototype.confirm = function(blockHash, blockIndex, blockTime) {
 Transaction.prototype.generateTxHash = function () {
   var hash = crypto.createHash('sha256')
   hash.update(this.amount + this.fee + this.time + this.comment + JSON.stringify(this.details));
-  return hash.digest('hex');;
+  var hashStr = hash.digest('hex');
+  return hashStr;
 };
 
 
