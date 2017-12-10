@@ -68,16 +68,33 @@ Miner.prototype.addTransaction = function (transaction) {
 
 Miner.prototype.getTransaction = function (state, id) {
   // add into pending
-  var confirmedTransactions = [];
-  for (var i = 0; i < this.blockchain.blockList.length; i++) {
-    var transactions = this.blockchain.blockList[i].tData;
-    for (var i = 0; i < transactions.length; i++) {
-      confirmedTransactions.push(transactions[i]);
-      if(transactions[i].txId == id){
-        return transactions[i];
+  if(state == "confirmed"){
+    if(id == undefined){
+      return "Error, id not provided for confirmed get tx";
+    }
+    console.log("getting confirmed transactions");
+    for (var i = 0; i < this.blockchain.blockList.length; i++) {
+      var blockTData = this.blockchain.blockList[i].tData;
+      if(this.blockchain.blockList[i].tData == "Genesis") {
+        continue;
       }
+
+      //console.log(blockTData);
+      for (var i = 0; i < blockTData.length; i++) {
+        var transaction = blockTData[i];
+        console.log("Checking tx: " + transaction.txId + " against " + id);
+        if(transaction.txId == id){
+          return transaction;
+        }
+      }
+
+    }
+  } else if(state == "pending"){
+    if(fs.existsSync(pendingFilename)){
+      return fs.readFileSync(pendingFilename, 'utf8');
     }
   }
+
   return state + " " + id
   // if state empty, get all
   // if id empty get all of state
