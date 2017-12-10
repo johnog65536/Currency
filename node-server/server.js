@@ -29,8 +29,8 @@ router.get('/confirmed', function(req, res) {
 router.route('/create')
   .post(function(req,res){
       var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
-      miner.addTransaction(transaction)
-      res.json({ message: 'Transaction created!' });
+      var id = miner.addTransaction(transaction)
+      res.json({ message: 'Transaction created: ' + id });
 })
 
 router.route('/blockchain')
