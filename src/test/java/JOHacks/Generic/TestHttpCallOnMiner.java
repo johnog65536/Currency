@@ -49,48 +49,33 @@ public class TestHttpCallOnMiner {
 	
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException, InterruptedException {
-		final int DELAY = 1;
 		
 		registerGenesysKeysPost();
 		
 		getBlockChain();
 		
 		createSimpleTransaction(10.0,genesysKeyLabel,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
-		Thread.sleep(DELAY);
 		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
-
-		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
-		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
-		Thread.sleep(DELAY);
 		
 		// generate a lot of txns
 		// for (int i=0 ; i<50 ; i++) {			createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!"); 		}
 		
 		getPendingTransactions();
-		Thread.sleep(DELAY);
 		getBlockChain();
-		Thread.sleep(DELAY);
-		
 		getConfirmedTransactions();
-		Thread.sleep(DELAY);
-		
-		goMine();
-		Thread.sleep(DELAY);
-		
-		goMine();
-		Thread.sleep(DELAY);
-		
-		getPendingTransactions();
-		Thread.sleep(DELAY);
-		
-		getBlockChain();
-		Thread.sleep(DELAY);
-		
-		checkTransactionsConfirmed();
-		Thread.sleep(DELAY);
 
+		goMine();		
+
+		getPendingTransactions();		
+		checkTransactionsConfirmed();
+	
+		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
+		createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
+		checkTransactionsConfirmed();
+		goMine();	
+		checkTransactionsConfirmed();
 	}
 	
 	
@@ -217,13 +202,12 @@ public class TestHttpCallOnMiner {
 	}
 	
 	private void checkTransactionsConfirmed() throws IOException {
-				
+		System.out.println("");
+		
 		for(String txnId:transactionIDs) {
 			final String response = HttpUtils.sendGet(GET_CONFIRMED_URL+"/"+txnId);		
 			System.out.println("checkTransactionsConfirmed() : "+ txnId+ ": " + response);
 		}
-		
-		
 	}
 	
 }
