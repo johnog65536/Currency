@@ -9,6 +9,10 @@ function Block(blockInstance, prevHash, tData) {
     this.blockID = blockInstance;
     this.prevHash = prevHash;
     this.timestamp = + new Date();
+    console.log(typeof tData);
+    for (var i = 0; i < tData.length; i++) {
+      tData[i].confirm(this.prevHash, this.blockID, this.timestamp);
+    }
     this.tData = tData;
     this.nonce = Math.random()*101|0;
     this.hashString = this.getCompleteBlockHash();

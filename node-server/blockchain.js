@@ -153,7 +153,14 @@ Blockchain.prototype.validateFull = function() {
 
 Blockchain.prototype.getBlock = function(blockId) {
   //TODO
-  return this.blockList[0]
+  console.log("GET block using id: " + blockId)
+  for (var i = 0; i < this.blockList.length; i++) {
+    var block = this.blockList[i];
+    if(block.blockID == blockId){
+      return block;
+    }
+  }
+  return "No block found";
 }
 
 
