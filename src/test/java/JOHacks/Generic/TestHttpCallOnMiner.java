@@ -71,17 +71,16 @@ public class TestHttpCallOnMiner {
 		System.out.println("registerGenesysKeysPost() : "+response);
 	}
 
-//{"amount":"10","fromAddress":"fromAddr","toAddress":"toAddr","comment":"hello world"}
 	
 	// this is the simple version needs replacing with the complex one in due course
 	private void createSimpleTransaction(double value, String inputKeyLabel,String outputKeyLabel,String comment) throws IOException, NoSuchAlgorithmException {
 		System.out.println("");
 		
 		final CurrencyKeyPair fromKey = wallet.getKeyPair(inputKeyLabel);
-		final CurrencyKeyPair toKey = wallet.getKeyPair(outputKeyLabel);
+		final CurrencyKeyPair toKey   = wallet.getKeyPair(outputKeyLabel);
 
 		final String from = fromKey.getPubKeyAsString();
-		final String to = toKey.getPubKeyAsString();
+		final String to   = toKey.getPubKeyAsString();
 		
 		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
 		final String jsonString = gson.toJson(pt);
