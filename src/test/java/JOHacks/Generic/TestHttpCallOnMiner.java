@@ -58,11 +58,15 @@ public class TestHttpCallOnMiner {
 		createSimpleTransaction(10.0,genesysKeyLabel,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
 		Thread.sleep(DELAY);
 		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
+
 		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
 		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
 		Thread.sleep(DELAY);
+		
+		// generate a lot of txns
+		// for (int i=0 ; i<50 ; i++) {			createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!"); 		}
 		
 		getPendingTransactions();
 		Thread.sleep(DELAY);
@@ -70,6 +74,9 @@ public class TestHttpCallOnMiner {
 		Thread.sleep(DELAY);
 		
 		getConfirmedTransactions();
+		Thread.sleep(DELAY);
+		
+		goMine();
 		Thread.sleep(DELAY);
 		
 		goMine();
@@ -83,6 +90,7 @@ public class TestHttpCallOnMiner {
 		
 		checkTransactionsConfirmed();
 		Thread.sleep(DELAY);
+
 	}
 	
 	
@@ -105,13 +113,9 @@ public class TestHttpCallOnMiner {
 		
 		final CurrencyKeyPair fromKey = wallet.getKeyPair(inputKeyLabel);
 		final CurrencyKeyPair toKey   = wallet.getKeyPair(outputKeyLabel);
-
 		final String from = fromKey.getPubKeyAsString();
-		final String to   = toKey.getPubKeyAsString();
-		
-		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
-		final String jsonString = gson.toJson(pt);
-		final String urlParameters = jsonString;
+		final String to   = toKey.getPubKeyAsString();			
+		final String urlParameters = "amount="+value+"&fromAddress="+from+"&toAddress="+to+"&comment="+comment;
 		
 		System.out.println("createSimpleTransaction() Posting to : "+CREATE_URL + " " +urlParameters);
 		
