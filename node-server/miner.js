@@ -2,6 +2,9 @@ const crypto = require('crypto')
 var fs = require('fs');
 var Blockchain = require('./blockchain');
 
+const pendingFilename = 'pending_transactions.json';
+
+
 // Constructor
 function Miner(blockchainName) {
 
@@ -24,12 +27,27 @@ Miner.prototype.confirm = function () {
 
 Miner.prototype.addTransaction = function (transaction) {
   // add into pending
-  return JSON.stringify(transaction)
+  //return JSON.stringify(transaction);
+  var pendingTransactions = "";
+  if(fs.existsSync(pendingFilename)){
+    pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
+    pendingTransactions += ','
+  }
+  pendingTransactions += JSON.stringify(transaction);
+  fs.writeFile(pendingFilename, pendingTransactions,'utf8', function callback(err, data){
+    if(err){
+      console.log(err);
+    }
+  });
+  return transaction.txId;
 }
 
 Miner.prototype.getTransaction = function (state, id) {
   // add into pending
   return state + " " + id
+  // if state empty, get all
+  // if id empty get all of state
+
 }
 
 
