@@ -21,7 +21,7 @@ public class CurrencyKeyPair {
 		keypair = CryptoUtils.getKeyPair();
 	}
 
-	
+	 
 	public CurrencyKeyPair(PortableKeyPair portableKeyPair) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeySpecException {
 		balance = 0;
 		label=portableKeyPair.getName();

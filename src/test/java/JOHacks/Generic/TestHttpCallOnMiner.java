@@ -27,11 +27,11 @@ public class TestHttpCallOnMiner {
 	private final String REGISTER_GENESYS_KEYS=ROOT_URL+"/create";
 
 	private final String PENDING_URL=ROOT_URL+"/pending";	
-	private final String CONFIRMED_URL=ROOT_URL+"/confirmed";
+	private final String GET_CONFIRMED_URL=ROOT_URL+"/confirmed";
 	private final String CREATE_URL=ROOT_URL+"/create";
 	private final String BLOCKCHAIN_URL=ROOT_URL+"/blockchain";
 	private final String BLOCK_URL=ROOT_URL+"/block/";
-	private final String CONFIRM_TRANSACTIONS_URL=ROOT_URL+"/confirm-transactions";
+	private final String GO_MINE=ROOT_URL+"/confirm-transactions";
 
 	private final Wallet wallet ;
 	private final CurrencyKeyPair genesysKeyPair;
@@ -56,6 +56,9 @@ public class TestHttpCallOnMiner {
 		
 		getPendingTransactions();
 		getConfirmedTransactions();
+		
+		goMine();
+		getPendingTransactions();
 	}
 	
 	
@@ -88,8 +91,8 @@ public class TestHttpCallOnMiner {
 		
 		System.out.println("createSimpleTransaction() Posting to : "+REGISTER_GENESYS_KEYS + " " +urlParameters);
 		
-		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
-		System.out.println("createSimpleTransaction() testGetPendingTransactions: "+ response);
+		final String response = HttpUtils.sendPost(CREATE_URL,urlParameters);			
+		System.out.println("createSimpleTransaction() response: "+ response);
 	}
 	
 
@@ -157,14 +160,24 @@ public class TestHttpCallOnMiner {
 	}
 	
 	
-
+	// this wont work - needs to check a specific transaction has passed
 	private void getConfirmedTransactions() throws IOException {
 		System.out.println("");
+		System.out.println("getConfirmedTransactions NOT YET IMPLEMENTED - needs store transaction ID");
 		
-		final String response = HttpUtils.sendGet(CONFIRMED_URL);		
-		System.out.println("getConfirmedTransactions() : "+ response);
+		//final String response = HttpUtils.sendGet(CONFIRMED_URL);		
+		//System.out.println("getConfirmedTransactions() : "+ response);
 	}
 
+	private void goMine() throws IOException, NoSuchAlgorithmException {
+		System.out.println("");
+		
+		System.out.println("goMine() Posting to : "+GO_MINE);
+		
+		final String response = HttpUtils.sendPost(GO_MINE,"");
+		System.out.println("goMine() : "+response);
+	}
+	
 }
 
 
