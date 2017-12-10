@@ -29,7 +29,7 @@ public class TestHttpCallOnMiner {
 	private final String PENDING_URL=ROOT_URL+"/pending";	
 	private final String GET_CONFIRMED_URL=ROOT_URL+"/confirmed";
 	private final String CREATE_URL=ROOT_URL+"/create";
-	private final String BLOCKCHAIN_URL=ROOT_URL+"/blockchain";
+	private final String GET_BLOCKCHAIN_URL=ROOT_URL+"/blockchain";
 	private final String BLOCK_URL=ROOT_URL+"/block/";
 	private final String GO_MINE=ROOT_URL+"/confirm-transactions";
 
@@ -39,6 +39,8 @@ public class TestHttpCallOnMiner {
 	
 	private final GsonBuilder builder = new GsonBuilder();
 	private final Gson gson = builder.create();
+
+	private final ArrayList<String> transactionIDs = new ArrayList<String>();
 	
 	public TestHttpCallOnMiner() throws NoSuchAlgorithmException {
 		wallet = new Wallet();
@@ -46,19 +48,41 @@ public class TestHttpCallOnMiner {
 	}
 	
 	@Test
-	public void testHttpMining() throws IOException, NoSuchAlgorithmException {
+	public void testHttpMining() throws IOException, NoSuchAlgorithmException, InterruptedException {
+		final int DELAY = 1000;
+		
 		registerGenesysKeysPost();
 		
+		getBlockChain();
+		
 		createSimpleTransaction(10.0,genesysKeyLabel,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
+		Thread.sleep(DELAY);
 		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
+		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
+		Thread.sleep(DELAY);
 		createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
+		Thread.sleep(DELAY);
 		
 		getPendingTransactions();
+		Thread.sleep(DELAY);
+		getBlockChain();
+		Thread.sleep(DELAY);
+		
 		getConfirmedTransactions();
+		Thread.sleep(DELAY);
 		
 		goMine();
+		Thread.sleep(DELAY);
+		
 		getPendingTransactions();
+		Thread.sleep(DELAY);
+		
+		getBlockChain();
+		Thread.sleep(DELAY);
+		
+		checkTransactionsConfirmed();
+		Thread.sleep(DELAY);
 	}
 	
 	
@@ -67,7 +91,7 @@ public class TestHttpCallOnMiner {
 		System.out.println("");
 		
 		final String jsonString = genesysKeyPair.getJSONRepresentation();		
-		final String urlParameters = "requestjson="+jsonString;
+		final String urlParameters = jsonString;
 		System.out.println("registerGenesysKeysPost() Posting to : "+urlParameters);
 		
 		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);
@@ -87,15 +111,17 @@ public class TestHttpCallOnMiner {
 		
 		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
 		final String jsonString = gson.toJson(pt);
-		final String urlParameters = "requestjson="+jsonString;
+		final String urlParameters = jsonString;
 		
-		System.out.println("createSimpleTransaction() Posting to : "+REGISTER_GENESYS_KEYS + " " +urlParameters);
+		System.out.println("createSimpleTransaction() Posting to : "+CREATE_URL + " " +urlParameters);
 		
 		final String response = HttpUtils.sendPost(CREATE_URL,urlParameters);			
 		System.out.println("createSimpleTransaction() response: "+ response);
+		
+		final String transactionID=response.substring(33, 97);
+		transactionIDs.add(transactionID);
 	}
 	
-
 
 	
 	class PortableTransaction{
@@ -144,7 +170,7 @@ public class TestHttpCallOnMiner {
 		//todo un bodge
 		final String jsonString = gson.toJson(transaction);
 		
-		final String urlParameters = "requestjson="+jsonString;
+		final String urlParameters = jsonString;
 		System.out.println("createComplexTransaction() Posting to : "+urlParameters);
 		
 		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
@@ -176,6 +202,24 @@ public class TestHttpCallOnMiner {
 		
 		final String response = HttpUtils.sendPost(GO_MINE,"");
 		System.out.println("goMine() : "+response);
+	}
+	
+	
+	private void getBlockChain() throws IOException {
+		System.out.println("");
+		
+		final String response = HttpUtils.sendGet(GET_BLOCKCHAIN_URL);		
+		System.out.println("getBlockChain() : "+ response);
+	}
+	
+	private void checkTransactionsConfirmed() throws IOException {
+				
+		for(String txnId:transactionIDs) {
+			final String response = HttpUtils.sendGet(GET_CONFIRMED_URL+"/"+txnId);		
+			System.out.println("checkTransactionsConfirmed() : "+ txnId+ ": " + response);
+		}
+		
+		
 	}
 	
 }
