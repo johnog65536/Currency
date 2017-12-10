@@ -25,6 +25,29 @@ function Transaction(amount, fromAddress, toAddress, comment) {
 
 }
 
+Transaction.prototype.create = function (transaction) {
+  this.amount = transaction.amount; // Amount being sent
+  this.fee = transaction.fee;
+  this.confirmations = transaction.confirmations;
+  this.time = transaction.time;
+  this.comment = transaction.comment;
+  this.details = [
+      {
+        address: transaction.details[0].address,
+        category: "send",
+        amount: transaction.details[0].amount,
+        fee: transaction.details[0].fee
+      },
+      {
+        address: transaction.details[1].address,
+        category: "recieve",
+        amount: transaction.details[1].amount
+      }
+    ];
+  this.txId = transaction.txId;
+  //console.log("CREATE TX: " + this);
+};
+
 Transaction.prototype.get = function () {
   return this;
 };
