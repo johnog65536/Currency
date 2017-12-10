@@ -76,7 +76,7 @@ public class TestHttpCallOnMiner {
 		final CurrencyKeyPair toKey = wallet.GenerateKeyPair(OUTPUT_KEY_LABEL_0);
 
 		final double value =5.0;
-		final String from = genesysKeyPair.getPubKeyAsHashedString();
+		final String from = genesysKeyPair.getPubKeyAsString();
 		final String to = toKey.getPubKeyAsHashedString();
 		final String comment = "Pay form the genesis key to my first key!";
 		
