@@ -34,8 +34,13 @@ public class Wallet {
 		return pair;
 	}
 	
-	public CurrencyKeyPair getKeyPair(String name) {
-		return keyPairs.get(name);
+	public CurrencyKeyPair getKeyPair(String name) throws NoSuchAlgorithmException {
+		CurrencyKeyPair keyPair = keyPairs.get(name);
+		
+		if(keyPair ==null) 
+			keyPair = GenerateKeyPair(name);
+		
+		return keyPair;
 	}
 	
 	

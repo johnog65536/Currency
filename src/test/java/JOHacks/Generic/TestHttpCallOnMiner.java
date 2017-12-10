@@ -48,7 +48,12 @@ public class TestHttpCallOnMiner {
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException {
 		registerGenesysKeysPost();
-		createSimpleTransaction();
+		
+		createSimpleTransaction(10.0,genesysKeyLabel,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
+		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
+		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
+		createSimpleTransaction(2.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
+		
 		getPendingTransactions();
 		getConfirmedTransactions();
 	}
@@ -69,25 +74,27 @@ public class TestHttpCallOnMiner {
 //{"amount":"10","fromAddress":"fromAddr","toAddress":"toAddr","comment":"hello world"}
 	
 	// this is the simple version needs replacing with the complex one in due course
-	private void createSimpleTransaction() throws IOException, NoSuchAlgorithmException {
+	private void createSimpleTransaction(double value, String inputKeyLabel,String outputKeyLabel,String comment) throws IOException, NoSuchAlgorithmException {
 		System.out.println("");
+		
+		final CurrencyKeyPair fromKey = wallet.getKeyPair(inputKeyLabel);
+		final CurrencyKeyPair toKey = wallet.getKeyPair(outputKeyLabel);
 
-    	final String OUTPUT_KEY_LABEL_0="Key Paying to 0";	
-		final CurrencyKeyPair toKey = wallet.GenerateKeyPair(OUTPUT_KEY_LABEL_0);
-
-		final double value =5.0;
-		final String from = genesysKeyPair.getPubKeyAsString();
+		final String from = fromKey.getPubKeyAsString();
 		final String to = toKey.getPubKeyAsString();
-		final String comment = "Pay form the genesis key to my first key!";
 		
 		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
 		final String jsonString = gson.toJson(pt);
 		final String urlParameters = "requestjson="+jsonString;
-		System.out.println("createSimpleTransaction() Posting to : "+urlParameters);
+		
+		System.out.println("createSimpleTransaction() Posting to : "+REGISTER_GENESYS_KEYS + " " +urlParameters);
 		
 		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
 		System.out.println("createSimpleTransaction() testGetPendingTransactions: "+ response);
 	}
+	
+
+
 	
 	class PortableTransaction{
 		private double amount;
