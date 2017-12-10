@@ -77,7 +77,7 @@ public class TestHttpCallOnMiner {
 
 		final double value =5.0;
 		final String from = genesysKeyPair.getPubKeyAsString();
-		final String to = toKey.getPubKeyAsHashedString();
+		final String to = toKey.getPubKeyAsString();
 		final String comment = "Pay form the genesis key to my first key!";
 		
 		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
