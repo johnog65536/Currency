@@ -30,6 +30,9 @@ Miner.prototype.confirm = function () {
   } else {
     return "No available pending transactions";
   }
+  if(pendingTransactions == "" || pendingTransactions == undefined){
+    return "Pending transactions file empty";
+  }
   var transactions = JSON.parse(pendingTransactions);
   console.log(transactions)
   var transactionsToConfirm = transactions['transactions'];
