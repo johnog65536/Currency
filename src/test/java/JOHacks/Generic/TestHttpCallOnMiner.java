@@ -49,7 +49,7 @@ public class TestHttpCallOnMiner {
 	
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException, InterruptedException {
-		final int DELAY = 1000;
+		final int DELAY = 1;
 		
 		registerGenesysKeysPost();
 		
