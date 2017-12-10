@@ -48,7 +48,7 @@ public class TestHttpCallOnMiner {
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException {
 		registerGenesysKeysPost();
-		createTransaction();
+		createSimpleTransaction();
 		getPendingTransactions();
 		getConfirmedTransactions();
 	}
@@ -66,8 +66,51 @@ public class TestHttpCallOnMiner {
 		System.out.println("registerGenesysKeysPost() : "+response);
 	}
 
+//{"amount":"10","fromAddress":"fromAddr","toAddress":"toAddr","comment":"hello world"}
+	
+	// this is the simple version needs replacing with the complex one in due course
+	private void createSimpleTransaction() throws IOException, NoSuchAlgorithmException {
+		System.out.println("");
 
-	private void createTransaction() throws IOException, NoSuchAlgorithmException {
+    	final String OUTPUT_KEY_LABEL_0="Key Paying to 0";	
+		final CurrencyKeyPair toKey = wallet.GenerateKeyPair(OUTPUT_KEY_LABEL_0);
+
+		final double value =5.0;
+		final String from = genesysKeyPair.getPubKeyAsHashedString();
+		final String to = toKey.getPubKeyAsHashedString();
+		final String comment = "Pay form the genesis key to my first key!";
+		
+		final PortableTransaction pt = new PortableTransaction(value,from,to,comment);
+		final String jsonString = gson.toJson(pt);
+		final String urlParameters = "requestjson="+jsonString;
+		System.out.println("createSimpleTransaction() Posting to : "+urlParameters);
+		
+		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
+		System.out.println("createSimpleTransaction() testGetPendingTransactions: "+ response);
+	}
+	
+	class PortableTransaction{
+		private double amount;
+		private String fromAddress;
+		private String toAddress;
+		private String comment;
+		
+		public PortableTransaction(double amount, String fromAddress, String toAddress, String comment) {
+			this.amount = amount;
+			this.fromAddress = fromAddress;
+			this.toAddress = toAddress;
+			this.comment = comment;
+		}
+
+		public double getAmount() {return amount;}
+		public String getFromAddress() {return fromAddress;	}
+		public String getToAddress() {return toAddress;	}
+		public String getComment() {return comment;}
+					
+	}
+	
+	// this is the more complex version
+	private void createComplexTransaction() throws IOException, NoSuchAlgorithmException {
 		System.out.println("");
 
     	final ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
@@ -93,10 +136,10 @@ public class TestHttpCallOnMiner {
 		final String jsonString = gson.toJson(transaction);
 		
 		final String urlParameters = "requestjson="+jsonString;
-		System.out.println("createTransaction() Posting to : "+urlParameters);
+		System.out.println("createComplexTransaction() Posting to : "+urlParameters);
 		
 		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
-		System.out.println("createTransaction() testGetPendingTransactions: "+ response);
+		System.out.println("createComplexTransaction() testGetPendingTransactions: "+ response);
 	}
  	
 
