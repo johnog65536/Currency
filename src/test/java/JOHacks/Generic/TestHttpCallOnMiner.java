@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
@@ -21,43 +22,98 @@ public class TestHttpCallOnMiner {
 
 	final String ROOT_URL= "http://localhost:8080/api";
 	
-	final String PENDING_URL=ROOT_URL+"/pending";
-	final String CONFIRMED_URL=ROOT_URL+"/confirmed";
-	final String CREATE_URL=ROOT_URL+"/create";
-	final String BLOCKCHAIN_URL=ROOT_URL+"/blockchain";
-	final String BLOCK_URL=ROOT_URL+"/block/";
-	final String CONFIRM_TRANSACTIONS_URL=ROOT_URL+"/confirm-transactions";
+	// todo uin bodge this - throws File Not Found in current form
+	//final String REGISTER_GENESYS_KEYS=ROOT_URL+"/register-genesys";
+	private final String REGISTER_GENESYS_KEYS=ROOT_URL+"/create";
+
+	private final String PENDING_URL=ROOT_URL+"/pending";	
+	private final String CONFIRMED_URL=ROOT_URL+"/confirmed";
+	private final String CREATE_URL=ROOT_URL+"/create";
+	private final String BLOCKCHAIN_URL=ROOT_URL+"/blockchain";
+	private final String BLOCK_URL=ROOT_URL+"/block/";
+	private final String CONFIRM_TRANSACTIONS_URL=ROOT_URL+"/confirm-transactions";
+
+	private final Wallet wallet ;
+	private final CurrencyKeyPair genesysKeyPair;
+	private final String genesysKeyLabel = "Genesys Key Pair"; 
+	
+	private final GsonBuilder builder = new GsonBuilder();
+	private final Gson gson = builder.create();
+	
+	public TestHttpCallOnMiner() throws NoSuchAlgorithmException {
+		wallet = new Wallet();
+		genesysKeyPair = wallet.GenerateKeyPair(genesysKeyLabel);  
+	}
 	
 	@Test
-	public void testGetPendingTransactions() throws IOException {
+	public void testHttpMining() throws IOException, NoSuchAlgorithmException {
+		registerGenesysKeysPost();
+		createTransaction();
+		getPendingTransactions();
+		getConfirmedTransactions();
+	}
+	
+	
+	
+	private void registerGenesysKeysPost() throws IOException, NoSuchAlgorithmException {
+		System.out.println("");
+		
+		final String jsonString = genesysKeyPair.getJSONRepresentation();		
+		final String urlParameters = "requestjson="+jsonString;
+		System.out.println("registerGenesysKeysPost() Posting to : "+urlParameters);
+		
+		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);
+		System.out.println("registerGenesysKeysPost() : "+response);
+	}
+
+
+	private void createTransaction() throws IOException, NoSuchAlgorithmException {
+		System.out.println("");
+
+    	final ArrayList<TransactionInput> inputs= new ArrayList<TransactionInput>();
+    	final ArrayList<TransactionOutput> outputs= new ArrayList<TransactionOutput>();
+		
+    	final String OUTPUT_KEY_LABEL_0="Key Paying to 0";
+    	final String OUTPUT_KEY_LABEL_1="Key Paying to 1";
+		
+		wallet.GenerateKeyPair(OUTPUT_KEY_LABEL_0);
+		wallet.GenerateKeyPair(OUTPUT_KEY_LABEL_1);
+		
+		//this is a bit hacky - needs to hang off the genesys transaction & have the right values in the outputs (ie not 5.0 each)
+		//needs the get transaction method to be available
+    	final TransactionInput input0 = new TransactionInput("no Txn",-1);
+    	inputs.add(input0);
+    
+    	outputs.add(wallet.createTxnOutput(OUTPUT_KEY_LABEL_0,0,5.0));
+    	outputs.add(wallet.createTxnOutput(OUTPUT_KEY_LABEL_1,1,5.0));
+		
+    	final Transaction transaction = new Transaction(inputs,outputs);
+		
+		//todo un bodge
+		final String jsonString = gson.toJson(transaction);
+		
+		final String urlParameters = "requestjson="+jsonString;
+		System.out.println("createTransaction() Posting to : "+urlParameters);
+		
+		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);			
+		System.out.println("createTransaction() testGetPendingTransactions: "+ response);
+	}
+ 	
+
+	private void getPendingTransactions() throws IOException {
+		System.out.println("");
+		
 		final String response = HttpUtils.sendGet(PENDING_URL);		
-		System.out.println("testGetPendingTransactions: "+ response);
+		System.out.println("getPendingTransactions() : "+ response);
 	}
 	
 	
-	@Test
-	public void testGetConfirmedTransactions() throws IOException {
+
+	private void getConfirmedTransactions() throws IOException {
+		System.out.println("");
+		
 		final String response = HttpUtils.sendGet(CONFIRMED_URL);		
-		System.out.println("testGetConfirmedTransactions: "+ response);
-	}
-
-	
-	
-	@Test
-	public void testCreateTransactionPost() throws IOException, NoSuchAlgorithmException {
-		final GsonBuilder builder = new GsonBuilder();
-		final Gson gson = builder.create();
-
-		final Wallet wallet = new Wallet();
-		final String genesysKeyLabel = "Genesys Key Pair";    	
-		final CurrencyKeyPair genesysKeyPair = wallet.GenerateKeyPair(genesysKeyLabel);    	
-		final String jsonString = genesysKeyPair.getJSONRepresentation();
-		
-		
-		final String urlParameters = "requestjson="+jsonString+"&id=1";
-		
-		final String response = HttpUtils.sendPost(CREATE_URL,urlParameters);		
-		System.out.println("testCreateTransactionPost: "+response);
+		System.out.println("getConfirmedTransactions() : "+ response);
 	}
 
 }

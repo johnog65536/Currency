@@ -9,6 +9,7 @@ import java.util.HashMap;
 import JOHacks.Generic.CurrencyKeyPair;
 import JOHacks.Generic.PortableKeyPair;
 import JOHacks.Generic.Transaction;
+import JOHacks.Generic.TransactionOutput;
 
 public class Wallet {
 
@@ -49,5 +50,17 @@ public class Wallet {
 		// get a miner
 		// send
 	}
-		
+
+	
+    public TransactionOutput createTxnOutput(String keyLabel, int index, double value) throws NoSuchAlgorithmException {
+    	CurrencyKeyPair outputKeyPair = getKeyPair(keyLabel);
+    	
+    	// bit hacky - todo
+    	if (outputKeyPair==null) 
+    		outputKeyPair = GenerateKeyPair(keyLabel);
+    	
+    	String pubKeyString = outputKeyPair.getPubKeyAsString();    	
+    	
+    	return new TransactionOutput(index,value,pubKeyString);    	
+    }
 }
