@@ -22,18 +22,34 @@ function Miner(blockchainName) {
 
 Miner.prototype.confirm = function () {
   // confirm pending into block into chain
-  return "confirm"
+  var pendingTransactions = "";
+  var confirmedTransactions = [];
+  if(fs.existsSync(pendingFilename)){
+    pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
+  } else {
+    return "No available pending transactions";
+  }
+  var transactions = JSON.parse(pendingTransactions);
+  for (var i = 0; i < transactions.length; i++) {
+    var transaction = new Transaction();
+    transaction.create(transactions[i]);
+    transaction.confirm();
+    transactionsToConfirm.push(transaction);
+  }
+  return "Successfully confirmed " + confirmedTransactions.length + " details: " + JSON.stringify(confirmedTransactions);
 };
 
 Miner.prototype.addTransaction = function (transaction) {
   // add into pending
   //return JSON.stringify(transaction);
-  var pendingTransactions = "";
+  var pendingTransactions = "{\"transactions\":[";
   if(fs.existsSync(pendingFilename)){
     pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
-    pendingTransactions += ','
+    //pendingTransactions = pendingTransactions.replace("{\"transactions\":[", "")
+    pendingTransactions = pendingTransactions.replace("]}", "")
+    pendingTransactions += ","
   }
-  pendingTransactions += JSON.stringify(transaction);
+  pendingTransactions += JSON.stringify(transaction) + "]}";
   fs.writeFile(pendingFilename, pendingTransactions,'utf8', function callback(err, data){
     if(err){
       console.log(err);
