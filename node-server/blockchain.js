@@ -170,12 +170,13 @@ function isValidBalance(wallet, amount){
   return valid;
 }
 
-Blockchain.prototype.validateTx = function(transaction){
+Blockchain.prototype.validateTx = function(transaction, pending){
   var fromAddress = transaction.details[0].address;
   if(fromAddress == "genesis"){
     return true;
   }
-  var wallets = this.getWalletTotals();
+  //console.log(pending);
+  var wallets = this.getWalletTotals(pending);
   console.log(transaction);
   var walletFound = false; // wallet has to exist to send money
   var walletHasEnoughMoney = true;
@@ -192,39 +193,58 @@ Blockchain.prototype.validateTx = function(transaction){
 
 
 
-Blockchain.prototype.getWalletTotals = function(){
+Blockchain.prototype.getWalletTotals = function(pending){
   var walletNameList = [];
   var walletAmountList = [];
+
+  if(pending){
+    var pendingReturned = addTransactionsToWallet(walletNameList, walletAmountList, pending);
+    //console.log("MERGED: " + transactions);
+    walletNameList = pendingReturned[0];
+    walletAmountList = pendingReturned[1];
+  }
+
   for (var i = 0; i < this.blockList.length; i++) {
     var block = this.blockList[i];
     //console.log(this.blockList.length)
-    for (var y = 0; y < block.tData.length; y++) {
-      if(typeof block.tData[y] == "string"){
-        break;
-      }
-      var transaction = new Transaction();
-      transaction.create(block.tData[y]);
-      var details = transaction.getWalletInfo();
-      //console.log("DETAILS :" + JSON.stringify(details));
-      if (walletNameList.indexOf(details.to) > -1) {
-          walletAmountList[walletNameList.indexOf(details.to)] += details.recieveAmount
-      } else {
-        walletNameList.push(details.to);
-        walletAmountList.push(details.recieveAmount);
-      }
-      if(walletNameList.indexOf(details.from) > -1) {
-          walletAmountList[walletNameList.indexOf(details.from)] += details.deductAmount
-      } else{
-        walletNameList.push(details.from);
-        walletAmountList.push(details.deductAmount);
-      }
-      //console.log(transaction);
-    }
+    var transactions = block.tData;
+    // Checks pending is defined
+    var returned = addTransactionsToWallet(walletNameList, walletAmountList, transactions);
+    //console.log("MERGED: " + transactions);
+    walletNameList = returned[0];
+    walletAmountList = returned[1];
+
   }
   //console.log(walletNameList);
   //console.log(walletAmountList);
   return makeWallet(walletNameList, walletAmountList);
 
+}
+
+function addTransactionsToWallet(walletNameList, walletAmountList, transactions){
+  for (var y = 0; y < transactions.length; y++) {
+    if(typeof transactions[y] == "string"){
+      break;
+    }
+    var transaction = new Transaction();
+    transaction.create(transactions[y]);
+    var details = transaction.getWalletInfo();
+    //console.log("DETAILS :" + JSON.stringify(details));
+    if (walletNameList.indexOf(details.to) > -1) {
+        walletAmountList[walletNameList.indexOf(details.to)] += details.recieveAmount
+    } else {
+      walletNameList.push(details.to);
+      walletAmountList.push(details.recieveAmount);
+    }
+    if(walletNameList.indexOf(details.from) > -1) {
+        walletAmountList[walletNameList.indexOf(details.from)] += details.deductAmount
+    } else{
+      walletNameList.push(details.from);
+      walletAmountList.push(details.deductAmount);
+    }
+    //console.log(transaction);
+  }
+  return [walletNameList, walletAmountList];
 }
 
 function makeWallet(nameArr, amArr){
