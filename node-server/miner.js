@@ -37,6 +37,7 @@ Miner.prototype.confirm = function () {
   for (var i = 0; i < transactionsToConfirm.length; i++) {
     var transaction = new Transaction("", "", "", "");
     transaction.create(transactionsToConfirm[i]);
+    transaction.confirmations += 1;
     confirmedTransactions.push(transaction);
   }
 
