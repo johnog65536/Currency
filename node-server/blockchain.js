@@ -1,5 +1,6 @@
 //
 var Block = require('./block');
+var Transaction = require('./transaction');
 var fs = require('fs');
 const crypto = require('crypto')
 
@@ -162,6 +163,79 @@ Blockchain.prototype.getBlock = function(blockId) {
   }
   return "No block found";
 }
+
+function isValidBalance(wallet, amount){
+  var valid = wallet.name == "genesis" ? true : wallet.balance - amount >= 0;
+  console.log("Testing wallet: " + wallet.name + " : " + wallet.balance + " : " + valid);
+  return valid;
+}
+
+Blockchain.prototype.validateTx = function(transaction){
+  var fromAddress = transaction.details[0].address;
+  if(fromAddress == "genesis"){
+    return true;
+  }
+  var wallets = this.getWalletTotals();
+  console.log(transaction);
+  var walletFound = false; // wallet has to exist to send money
+  var walletHasEnoughMoney = true;
+  wallets.forEach(function(wallet){
+    if(wallet.name == fromAddress){
+       walletFound = true;
+       walletHasEnoughMoney = (wallet.balance - transaction.amount) > 0;
+     }
+  });
+  console.log(fromAddress);
+  return walletFound && walletHasEnoughMoney // and balance is enough for tx
+  //var valid = wallets.every(isValidBalance);
+}
+
+
+
+Blockchain.prototype.getWalletTotals = function(){
+  var walletNameList = [];
+  var walletAmountList = [];
+  for (var i = 0; i < this.blockList.length; i++) {
+    var block = this.blockList[i];
+    //console.log(this.blockList.length)
+    for (var y = 0; y < block.tData.length; y++) {
+      if(typeof block.tData[y] == "string"){
+        break;
+      }
+      var transaction = new Transaction();
+      transaction.create(block.tData[y]);
+      var details = transaction.getWalletInfo();
+      //console.log("DETAILS :" + JSON.stringify(details));
+      if (walletNameList.indexOf(details.to) > -1) {
+          walletAmountList[walletNameList.indexOf(details.to)] += details.recieveAmount
+      } else {
+        walletNameList.push(details.to);
+        walletAmountList.push(details.recieveAmount);
+      }
+      if(walletNameList.indexOf(details.from) > -1) {
+          walletAmountList[walletNameList.indexOf(details.from)] += details.deductAmount
+      } else{
+        walletNameList.push(details.from);
+        walletAmountList.push(details.deductAmount);
+      }
+      //console.log(transaction);
+    }
+  }
+  //console.log(walletNameList);
+  //console.log(walletAmountList);
+  return makeWallet(walletNameList, walletAmountList);
+
+}
+
+function makeWallet(nameArr, amArr){
+  var wallets = [];
+  nameArr.forEach(function(name, index){
+    wallets.push({"name": name, "balance": amArr[index]});
+  });
+  //console.log(wallets);
+  return wallets;
+}
+
 
 
 
