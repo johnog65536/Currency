@@ -53,6 +53,10 @@ Miner.prototype.confirm = function () {
 Miner.prototype.addTransaction = function (transaction) {
   // add into pending
   //return JSON.stringify(transaction);
+  // Check if transaction is not valid
+  if(!this.blockchain.validateTx(transaction)){
+    return "Transaction is invalid: either wallet does not exist or insufficient funds";
+  }
   var pendingTransactions = "{\"transactions\":[";
   if(fs.existsSync(pendingFilename)){
     pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
@@ -60,6 +64,7 @@ Miner.prototype.addTransaction = function (transaction) {
     pendingTransactions = pendingTransactions.replace("]}", "")
     pendingTransactions += ","
   }
+
   console.log("Adding new transaction to file " + JSON.stringify(transaction));
   pendingTransactions += JSON.stringify(transaction) + "]}";
   console.log(pendingTransactions);
@@ -103,8 +108,13 @@ Miner.prototype.getTransaction = function (state, id) {
   return state + " " + id
   // if state empty, get all
   // if id empty get all of state
+};
 
+Miner.prototype.getWalletBalance = function(walletName){
+  console.log(this.blockchain.getWalletTotals());
 }
+
+
 
 
 
