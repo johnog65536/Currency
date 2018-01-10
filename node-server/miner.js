@@ -23,24 +23,21 @@ function Miner(blockchainName) {
 
 Miner.prototype.confirm = function () {
   // confirm pending into block into chain
-  var pendingTransactions = "";
   var confirmedTransactions = [];
-  if(fs.existsSync(pendingFilename)){
-    pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
+  var transactions = getPendingTransactions();
+  console.log(transactions);
+  if(transactions && typeof transactions != "string"){
+    var transactionsToConfirm = transactions['transactions'];
   } else {
-    return "No available pending transactions";
+    return "No transactions to confirm";
   }
-  if(pendingTransactions == "" || pendingTransactions == undefined){
-    return "Pending transactions file empty";
-  }
-  var transactions = JSON.parse(pendingTransactions);
-  console.log(transactions)
-  var transactionsToConfirm = transactions['transactions'];
+
   console.log(transactionsToConfirm)
   console.log("len: " + transactionsToConfirm.length)
   for (var i = 0; i < transactionsToConfirm.length; i++) {
     var transaction = new Transaction("", "", "", "");
     transaction.create(transactionsToConfirm[i]);
+    transaction.confirmations += 1;
     confirmedTransactions.push(transaction);
   }
 
@@ -53,6 +50,24 @@ Miner.prototype.confirm = function () {
 Miner.prototype.addTransaction = function (transaction) {
   // add into pending
   //return JSON.stringify(transaction);
+  // Check if transaction is not valid
+  //var pendingTx = getPendingTransactions();
+  var pending = [];
+  //console.log(pendingTx);
+  var curPending = getPendingTransactions();
+
+  if(curPending && typeof curPending != "string"){
+    curPending['transactions'].forEach(function(tx){
+      var transaction = new Transaction();
+      transaction.create(tx);
+      pending.push(transaction);
+
+    });
+  }
+
+  if(!this.blockchain.validateTx(transaction, pending)){
+    return "Transaction is invalid: either wallet does not exist or insufficient funds";
+  }
   var pendingTransactions = "{\"transactions\":[";
   if(fs.existsSync(pendingFilename)){
     pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
@@ -60,6 +75,7 @@ Miner.prototype.addTransaction = function (transaction) {
     pendingTransactions = pendingTransactions.replace("]}", "")
     pendingTransactions += ","
   }
+
   console.log("Adding new transaction to file " + JSON.stringify(transaction));
   pendingTransactions += JSON.stringify(transaction) + "]}";
   console.log(pendingTransactions);
@@ -103,7 +119,23 @@ Miner.prototype.getTransaction = function (state, id) {
   return state + " " + id
   // if state empty, get all
   // if id empty get all of state
+};
 
+Miner.prototype.getWalletBalance = function(walletName){
+  console.log(this.blockchain.getWalletTotals());
+}
+
+function getPendingTransactions(){
+  if(fs.existsSync(pendingFilename)){
+    pendingTransactions = fs.readFileSync(pendingFilename, 'utf8');
+  } else {
+    return "No available pending transactions";
+  }
+  if(pendingTransactions == "" || pendingTransactions == undefined){
+    return "Pending transactions file empty";
+  }
+  var transactions = JSON.parse(pendingTransactions);
+  return transactions;
 }
 
 
