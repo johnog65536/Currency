@@ -23,7 +23,9 @@ router.get('/pending', function(req, res) {
 });
 
 router.get('/confirmed/:txId', function(req, res) {
-    res.json({ message: miner.getTransaction("confirmed", req.params.txId) });
+  var confirmed = miner.getTransaction("confirmed", req.params.txId);
+  //console.log(confirmed);
+    res.status(200).json({ message: "found" });
 });
 
 router.route('/create')

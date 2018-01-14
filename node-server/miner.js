@@ -91,7 +91,7 @@ Miner.prototype.getTransaction = function (state, id) {
   // add into pending
   if(state == "confirmed"){
     if(id == undefined){
-      return "Error, id not provided for confirmed get tx";
+      return "Error: id not provided for confirmed get tx";
     }
     console.log("getting confirmed transactions");
     for (var i = 0; i < this.blockchain.blockList.length; i++) {
@@ -105,18 +105,25 @@ Miner.prototype.getTransaction = function (state, id) {
         var transaction = blockTData[i];
         console.log("Checking tx: " + transaction.txId + " against " + id);
         if(transaction.txId == id){
-          return transaction;
+          //console.log("confirmed match");
+          return JSON.stringify(transaction);
         }
       }
 
+
     }
+    return "No transactions found";
   } else if(state == "pending"){
     if(fs.existsSync(pendingFilename)){
-      return fs.readFileSync(pendingFilename, 'utf8');
+      var pendingTxs = fs.readFileSync(pendingFilename, 'utf8');
+      //console.log(pendingTxs);
+      return pendingTxs
+    } else {
+      return "There are pending transactions"
     }
   }
 
-  return state + " " + id
+  //return state + " " + id
   // if state empty, get all
   // if id empty get all of state
 };
