@@ -48,6 +48,7 @@ Miner.prototype.confirm = function () {
 };
 
 Miner.prototype.addTransaction = function (transaction) {
+  console.log("MINER : ADD : " + JSON.stringify(transaction));
   // add into pending
   //return JSON.stringify(transaction);
   // Check if transaction is not valid
@@ -58,14 +59,15 @@ Miner.prototype.addTransaction = function (transaction) {
 
   if(curPending && typeof curPending != "string"){
     curPending['transactions'].forEach(function(tx){
-      var transaction = new Transaction();
-      transaction.create(tx);
-      pending.push(transaction);
+      var newTX = new Transaction();
+      newTX.create(tx);
+      pending.push(newTX);
 
     });
   }
 
   if(!this.blockchain.validateTx(transaction, pending)){
+    console.log("Transaction is invalid: " + JSON.stringify(transaction))
     return "Transaction is invalid: either wallet does not exist or insufficient funds";
   }
   var pendingTransactions = "{\"transactions\":[";
@@ -78,7 +80,7 @@ Miner.prototype.addTransaction = function (transaction) {
 
   console.log("Adding new transaction to file " + JSON.stringify(transaction));
   pendingTransactions += JSON.stringify(transaction) + "]}";
-  console.log(pendingTransactions);
+  //console.log(pendingTransactions);
   fs.writeFile(pendingFilename, pendingTransactions,'utf8', function callback(err, data){
     if(err){
       console.log(err);
@@ -103,7 +105,7 @@ Miner.prototype.getTransaction = function (state, id) {
       //console.log(blockTData);
       for (var i = 0; i < blockTData.length; i++) {
         var transaction = blockTData[i];
-        console.log("Checking tx: " + transaction.txId + " against " + id);
+        //console.log("Checking tx: " + transaction.txId + " against " + id);
         if(transaction.txId == id){
           //console.log("confirmed match");
           return JSON.stringify(transaction);
