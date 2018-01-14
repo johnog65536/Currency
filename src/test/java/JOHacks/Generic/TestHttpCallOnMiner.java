@@ -50,7 +50,8 @@ public class TestHttpCallOnMiner {
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException, InterruptedException {
 
-		registerGenesysKeysPost();
+		// server doesn't currently accept create passing in key
+		//registerGenesysKeysPost();
 
 		getBlockChain();
 
@@ -66,7 +67,7 @@ public class TestHttpCallOnMiner {
 		getBlockChain();
 		getConfirmedTransactions();
 
-		//goMine();
+		goMine();
 
 		getPendingTransactions();
 		checkTransactionsConfirmed();
