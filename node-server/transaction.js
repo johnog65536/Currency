@@ -68,6 +68,15 @@ Transaction.prototype.generateTxHash = function () {
   return hashStr;
 };
 
+Transaction.prototype.getWalletInfo = function () {
+  return {
+    from: this.details[0].address,
+    deductAmount: parseInt(this.details[0].amount, 10),
+    to: this.details[1].address,
+    recieveAmount: parseInt(this.details[1].amount, 10)
+  }
+};
+
 
 
 // export the class
