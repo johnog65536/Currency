@@ -50,12 +50,15 @@ public class TestHttpCallOnMiner {
 	@Test
 	public void testHttpMining() throws IOException, NoSuchAlgorithmException, InterruptedException {
 
-		// server doesn't currently accept create passing in key
-		//registerGenesysKeysPost();
+		// todo - need to fix this properly - see issue-15
+		registerGenesysKeysPost();
 
 		getBlockChain();
 
-		createSimpleTransaction(10.0,"genesis","MyFirstKey","Pay from the genesis key to MyFirstKey!");
+		// todo, replace the following line with money from the block chain genesys properly 
+		createGensysTransaction(10.0,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
+
+		// move some cash around
 		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
 		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
 		createSimpleTransaction(1.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
@@ -82,16 +85,40 @@ public class TestHttpCallOnMiner {
 
 
 	private void registerGenesysKeysPost() throws IOException, NoSuchAlgorithmException {
-		System.out.println("");
-
-		final String jsonString = genesysKeyPair.getJSONRepresentation();
-		final String urlParameters = jsonString;
-		System.out.println("registerGenesysKeysPost() Posting to : "+urlParameters);
-
-		final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);
-		System.out.println("registerGenesysKeysPost() : "+response);
+		
+		// todo - fix: short term hack reflecting the way to get initial cash from the miner
+		// miner doesn't currently accept create passing in key for the genesys block so hardcodes genesys key to "genesys"
+		// the miner doesnt yet allocate cash on a confirm, so to get initial cash you
+		// just ask for it from an input key of "genesys"
+		// impact is this is commented out
+		
+		//System.out.println("");
+		//final String jsonString = genesysKeyPair.getJSONRepresentation();
+		//final String urlParameters = jsonString;
+		//System.out.println("registerGenesysKeysPost() Posting to : "+urlParameters);
+		//final String response = HttpUtils.sendPost(REGISTER_GENESYS_KEYS,urlParameters);
+		//System.out.println("registerGenesysKeysPost() : "+response);
+		
 	}
 
+	
+	private void createGensysTransaction(double value, String outputKeyLabel,String comment) throws IOException, NoSuchAlgorithmException {
+		System.out.println("");
+
+		final CurrencyKeyPair toKey   = wallet.getKeyPair(outputKeyLabel);
+		final String from = "genesis";
+		final String to   = toKey.getPubKeyAsString();
+		final String urlParameters = "amount="+value+"&fromAddress="+from+"&toAddress="+to+"&comment="+comment;
+
+		System.out.println("createGensysTransaction() Posting to : "+CREATE_URL + " " +urlParameters);
+
+		final String response = HttpUtils.sendPost(CREATE_URL,urlParameters);
+		System.out.println("createGensysTransaction() response: "+ response);
+
+		final String transactionID=response.substring(33, 97);
+		transactionIDs.add(transactionID);
+	}
+	
 
 	// this is the simple version needs replacing with the complex one in due course
 	private void createSimpleTransaction(double value, String inputKeyLabel,String outputKeyLabel,String comment) throws IOException, NoSuchAlgorithmException {
@@ -99,14 +126,7 @@ public class TestHttpCallOnMiner {
 
 		final CurrencyKeyPair fromKey = wallet.getKeyPair(inputKeyLabel);
 		final CurrencyKeyPair toKey   = wallet.getKeyPair(outputKeyLabel);
-		String from = fromKey.getPubKeyAsString();
-		
-		// todo - fix: short term hack reflecting the way to get initial cash from the miner
-		// the miner doesnt yet allocate cash on a confirm, so to get initial cash you
-		// just ask for it from an input key of "genesys"
-		if(inputKeyLabel == "genesis"){
-			from = "genesis";
-		}
+		final String from = fromKey.getPubKeyAsString();
 		final String to   = toKey.getPubKeyAsString();
 		final String urlParameters = "amount="+value+"&fromAddress="+from+"&toAddress="+to+"&comment="+comment;
 
