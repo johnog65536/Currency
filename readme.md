@@ -3,6 +3,19 @@ This is a basic example of a CryptoCoin for understanding of the tech only
 
 ## Overview
 
+### Wallet Command line
+Fetch the code from src, and build with 
+```
+mvn compile
+```
+Run tests
+ 
+* Majority contained within TestHttpCallOnMiner, which integrates with the node miner
+* Remaining elements assume the miner is local, implemented in Java
+
+### Wallet GUI
+[TODO] John Manley updating
+
 ### node-server
 Contains the NodeJS scripts for the server side blockchain transactions
 * main.js - Currently the test script interacting with the others
