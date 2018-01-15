@@ -34,11 +34,12 @@ var Transaction = require('./transaction'); // TEST PURPOSES PLEASE REMOVE
 
 // // Create miner from local tester blockchain
 var mn = new Miner("dom-test");
-var transaction = new Transaction(300, "fromAddr", "toAddr", "test")
+var transaction = new Transaction(300, "genesis", "toAddr", "test")
 // console.log("Creating transaction: " + JSON.stringify(transaction));
 //console.log(mn.addTransaction(transaction));
-mn.confirm();
+//mn.confirm();
 mn.getWalletBalance();
+console.log(mn.getTransaction("pending", ""));
 //console.log(id)
 //console.log(mn.blockchain.validateTx());
 // console.log(mn.blockchain);

@@ -23,19 +23,23 @@ router.get('/pending', function(req, res) {
 });
 
 router.get('/confirmed/:txId', function(req, res) {
-    res.json({ message: miner.getTransaction("confirmed", req.params.txId) });
+  var confirmed = miner.getTransaction("confirmed", req.params.txId);
+  //console.log(confirmed);
+    res.status(200).json({ message: "found" });
 });
 
 router.route('/create')
   .post(function(req,res){
       var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
-      console.log("Creating transaction: " + JSON.stringify(transaction));
+      //console.log("Creating transaction: " + JSON.stringify(transaction));
+      
       var id = miner.addTransaction(transaction)
       res.json({ message: 'Transaction created: ' + id });
 })
 
 router.route('/blockchain')
    .get(function(req, res) {
+    console.log("Returning blockchain");
       res.json({ blockchain: miner.blockchain });
 });
 
