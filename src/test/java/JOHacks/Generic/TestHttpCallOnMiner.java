@@ -100,6 +100,10 @@ public class TestHttpCallOnMiner {
 		final CurrencyKeyPair fromKey = wallet.getKeyPair(inputKeyLabel);
 		final CurrencyKeyPair toKey   = wallet.getKeyPair(outputKeyLabel);
 		String from = fromKey.getPubKeyAsString();
+		
+		// todo - fix: short term hack reflecting the way to get initial cash from the miner
+		// the miner doesnt yet allocate cash on a confirm, so to get initial cash you
+		// just ask for it from an input key of "genesys"
 		if(inputKeyLabel == "genesis"){
 			from = "genesis";
 		}
