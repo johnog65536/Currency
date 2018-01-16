@@ -56,11 +56,12 @@ public class TestHttpCallOnMiner {
 		getBlockChain();
 
 		// todo, replace the following line with money from the block chain genesys properly 
-		createGensysTransaction(10.0,"MyFirstKey","Pay from the genesis key to MyFirstKey!");
+		createGensysTransaction(10.0,"MyFirstKey","Pay from the genesis key to MyFirstKey!   #WheresWappet");
 
 		// move some cash around
 		createSimpleTransaction(5.0,"MyFirstKey","MySecondKey",   "Pay from MyFirstKey to MySecondKey!");
 		createSimpleTransaction(2.0,"MyFirstKey","MyThirdKey",    "Pay from MyFirstKey to MyThirdKey!");
+		createSimpleTransaction(1.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
 		createSimpleTransaction(1.0,"MySecondKey","MyThirdKey",   "Pay from MySecondKey to MyThirdKey!");
 
 		// generate a lot of txns
