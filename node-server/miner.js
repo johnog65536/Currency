@@ -44,7 +44,7 @@ Miner.prototype.confirm = function () {
   this.blockchain.addBlock(confirmedTransactions);
   this.blockchain.saveChain();
   fs.unlinkSync(pendingFilename);
-  return "Successfully confirmed " + confirmedTransactions.length + " details: " + JSON.stringify(confirmedTransactions);
+  return confirmedTransactions;
 };
 
 Miner.prototype.addTransaction = function (transaction) {
@@ -108,7 +108,7 @@ Miner.prototype.getTransaction = function (state, id) {
         //console.log("Checking tx: " + transaction.txId + " against " + id);
         if(transaction.txId == id){
           //console.log("confirmed match");
-          return JSON.stringify(transaction);
+          return transaction;
         }
       }
 
@@ -143,7 +143,7 @@ function getPendingTransactions(){
   if(pendingTransactions == "" || pendingTransactions == undefined){
     return "Pending transactions file empty";
   }
-  var transactions = JSON.parse(pendingTransactions);
+  var transactions = pendingTransactions;
   return transactions;
 }
 

@@ -25,14 +25,14 @@ router.get('/pending', function(req, res) {
 router.get('/confirmed/:txId', function(req, res) {
   var confirmed = miner.getTransaction("confirmed", req.params.txId);
   //console.log(confirmed);
-    res.status(200).json({ message: "found" });
+    res.status(200).json({ message: confirmed});
 });
 
 router.route('/create')
   .post(function(req,res){
       var transaction = new Transaction(req.body.amount, req.body.fromAddress, req.body.toAddress, req.body.comment)
       //console.log("Creating transaction: " + JSON.stringify(transaction));
-      
+
       var id = miner.addTransaction(transaction)
       res.json({ message: 'Transaction created: ' + id });
 })
@@ -50,7 +50,7 @@ router.route('/block/:blockId')
 
 router.route('/confirm-transactions')
   .post(function(req, res){
-    res.json({ status: miner.confirm()});
+    res.json({ confirmed: miner.confirm()});
 });
 
 // all of our routes will be prefixed with /api
